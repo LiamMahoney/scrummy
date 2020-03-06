@@ -1,0 +1,22 @@
+{
+  "name": "scrummy",
+  "version": "1.0.0",
+  "description": "Scrum operations for github issues and projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LiamMahoney/scrummy.git"
+  },
+  "author": "liam mahoney",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LiamMahoney/scrummy/issues"
+  },
+  "homepage": "https://github.com/LiamMahoney/scrummy#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
