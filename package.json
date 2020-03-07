@@ -2,9 +2,9 @@
   "name": "scrummy",
   "version": "1.0.0",
   "description": "Scrum operations for github issues and projects",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "tsc": "tsc"
   },
   "repository": {
     "type": "git",
