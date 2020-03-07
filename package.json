@@ -16,7 +16,8 @@
     "url": "https://github.com/LiamMahoney/scrummy/issues"
   },
   "homepage": "https://github.com/LiamMahoney/scrummy#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "typescript": "^3.8.3"
   }
 }
