@@ -5,7 +5,8 @@
  * @param {string} title: the laebl title
  */
 function createLabel(type, title) {
-    console.log(`creating label '${type}: ${title}`);
+    //TODO:
+    console.log(`creating label '${type}: ${title}'`);
 }
 
 module.exports = {
