@@ -1,6 +1,7 @@
 const { milestone } = require('./hooks/milestone');
 const { issues } = require('./hooks/issues');
 const { project } = require('./hooks/project');
+const { project_columns} = require('./hooks/project_columns');
 
 // This file holds all of the hooks so there is only one import required in scrummy.js
 
@@ -9,5 +10,6 @@ const { project } = require('./hooks/project');
 module.exports = {
     milestone,
     issues,
-    project
+    project,
+    project_columns
 }
