@@ -19,11 +19,13 @@ function createLabel(type, title, repo) {
             path: `/repos/${repo.owner}/${repo.name}/labels`
         }
 
-        request.post(options, data).then((response) => {
-            console.log(response);
+        request.post(options, data).then((res) => {
+            if (res.stausCode !== 201) {
+                reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+            }
+            log.info(`created new label ${res.data.name}`);
             resolve();
         });
-
     });
 }
 
