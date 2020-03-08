@@ -1,5 +1,4 @@
 const request = require('../../utils/request');
-const { log } = require('../../utils/log');
 
 /**
  * Creates a new label in the format `type: title`.
@@ -21,8 +20,7 @@ function createLabel(type, title, repo) {
 
         request.post(options, data).then((res) => {
             if (res.statusCode === 201) {
-                log.info(`created new label '${res.data.name}'`);
-                resolve();
+                resolve(`created new label '${res.data.name}'`);
             } else {
                 reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }            
