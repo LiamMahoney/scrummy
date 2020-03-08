@@ -10,7 +10,9 @@ app.use(express.json());
 
 app.post("/", verifyPostData, (req, res) => {
 
-    scrummy(req.headers['x-github-event'], req.body).catch((err) => {
+    scrummy(req.headers['x-github-event'], req.body).then((output) => {
+        log.info(output);
+    }).catch((err) => {
         log.error(err.stack);
     })
 
