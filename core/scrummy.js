@@ -1,4 +1,4 @@
-const { project } = require('./hooks');
+const { project, milestone } = require('./hooks');
 
 /**
  * The main controller of the program. This function decides
@@ -14,6 +14,9 @@ function scrummy(type, data) {
         switch (type) {
             case 'project':
                 resolve(project(data));
+                break;
+            case 'milestone':
+                resolve(milestone(data));
                 break;
             default:
                 return;
