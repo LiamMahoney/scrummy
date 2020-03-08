@@ -1,6 +1,4 @@
 const https = require('https');
-const http = require('http');
-const log = require('./log');
 const config = require('../config/config');
 
 /**
