@@ -20,11 +20,12 @@ function createLabel(type, title, repo) {
         }
 
         request.post(options, data).then((res) => {
-            if (res.stausCode !== 201) {
+            if (res.statusCode === 201) {
+                log.info(`created new label '${res.data.name}'`);
+                resolve();
+            } else {
                 reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
-            }
-            log.info(`created new label ${res.data.name}`);
-            resolve();
+            }            
         });
     });
 }
