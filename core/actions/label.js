@@ -1,5 +1,5 @@
 const request = require('../../utils/request');
-const { log } = require('../..utils/log');
+const { log } = require('../../utils/log');
 
 /**
  * Creates a new label in the format `type: title`.
