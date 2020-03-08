@@ -11,7 +11,7 @@ function project(data) {
 
         switch (data.action) {
             case 'created':
-                resolve(Label.createLabel("project", data.project.body, repo));
+                resolve(Label.createLabel("project", data.project.name.toLowerCase(), repo));
                 break;
         }
     });
