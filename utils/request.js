@@ -19,6 +19,9 @@ function get(opts) {
             }
         }
 
+        //TODO: need to do the same with regular options
+        Object.assign(options.headers, opts.headers);
+
         let req = https.request(options, (res) => {
             let data = '';
             console.log(`response status code: ${res.statusCode}`);
@@ -65,6 +68,9 @@ function post(opts, data) {
                 'User-Agent': 'Scrummy'
             }
         }
+        
+        //TODO: need to do the same with regular options
+        Object.assign(options.headers, opts.headers);
 
         let req = https.request(options, (res) => {
             let data = '';
