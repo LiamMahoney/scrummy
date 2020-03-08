@@ -10,7 +10,7 @@ const { project, milestone } = require('./hooks');
  */
 function scrummy(type, data) {
     return new Promise((resolve, reject) => {
-        console.debug(`scrummy recieved hook with type: ${type}`);
+        console.debug(`scrummy recieved hook with type: ${type} and action ${data.action}`);
         switch (type) {
             case 'project':
                 resolve(project(data));
