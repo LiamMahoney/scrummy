@@ -1,4 +1,4 @@
-const { milestone, issues, project } = require('./hooks');
+const { project } = require('./hooks');
 
 /**
  * The main controller of the program. This function decides
@@ -9,20 +9,16 @@ const { milestone, issues, project } = require('./hooks');
  * @param {object} data: post data from webhook
  */
 function scrummy(type, data) {
-    console.debug(`scrummy recieved hook with type: ${type}`);
-    switch (type) {
-        case 'milestone':
-            milestone(data);
-            break;
-        case 'issues':
-            issues(data);
-            break;
-        case 'project':
-            project(data);
-            break;
-        default:
-            return;
-    }
+    return new Promise((resolve, reject) => {
+        console.debug(`scrummy recieved hook with type: ${type}`);
+        switch (type) {
+            case 'project':
+                resolve(project(data));
+                break;
+            default:
+                return;
+        }
+    });
 }
 
 module.exports = {

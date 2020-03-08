@@ -7,48 +7,54 @@ const config = require('../config/config');
  */
 function get(opts) {
     //TODO: validate options
-
-    let options = {
-        hostname: config.githubApiUrl,
-        port: 443,
-        path: opts.path,
-        method: 'GET',
-        headers: {
-            Authorization: `Basic ${Buffer.from(`${config.gitUser}:${config.gitPassword}`).toString('base64')}`,
-            'User-Agent': 'Scrummy'
+    return new Promise((resolve, reject) => {
+        let options = {
+            hostname: config.githubApiUrl,
+            port: 443,
+            path: opts.path,
+            method: 'GET',
+            headers: {
+                Authorization: `Basic ${Buffer.from(`${config.gitUser}:${config.gitPassword}`).toString('base64')}`,
+                'User-Agent': 'Scrummy'
+            }
         }
-    }
 
-    let req = https.request(options, (res) => {
-        let data = '';
-        console.log(`response status code: ${res.statusCode}`);
+        let req = https.request(options, (res) => {
+            let data = '';
+            console.log(`response status code: ${res.statusCode}`);
 
-        res.on('data', (d) => {
-            data += d;
+            res.on('data', (d) => {
+                data += d;
+            });
+
+            res.on('end', function () {
+                resolve({
+                    data: JSON.parse(data),
+                    statusCode: this.statusCode,
+                    path: this.req.path,
+                    method: this.req.method
+                });
+            });
         });
 
-        res.on('end', () => {
-            console.log(`data: ${data}`);
-        })
-    });
+        req.on('error', (err) => {
+            reject(err);
+        });
 
-    req.on('error', (err) => {
-        console.error(err);
+        req.end();
     });
-
-    req.end();
 }
 
 /**
  * Sends a HTTP post request to the Github API.
  * 
  * @param {Object} opts: various HTTP request options
- * @param {Object} data: post data to send 
+ * @param {Object} data: post data to send
+ * @param {Function} callback: callback function to call when the request is done
  */
 function post(opts, data) {
+    //TODO: validate options
     return new Promise((resolve, reject) => {
-        //TODO: validate options
-
         let options = {
             hostname: config.githubApiUrl,
             port: 443,

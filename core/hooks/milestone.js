@@ -1,6 +1,8 @@
 
 function milestone(data) {
-    console.debug(`milestone recieved action ${data.action}`);
+    return new Promise((resolve, reject) => {
+        reject(new Error("not implemented"));
+    });
 }
 
 module.exports = {

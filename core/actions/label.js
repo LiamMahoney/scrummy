@@ -9,24 +9,21 @@ const { log } = require('../../utils/log');
  * @param {Object} repo: repository information {name: "repository name", owner: "owner github login"}
  */
 function createLabel(type, title, repo) {
-
-    let data = {
-        name: `${type}: ${title}`,
-        color: genColor()
-    }
-
-    let options = {
-        path: `/repos/${repo.owner}/${repo.name}/labels`
-    }
-
-    request.post(options, data).then((res) => {
-        if (res.statusCode !== 201) {
-            throw `expected 201 but recieved ${res.statusCode} ${res.method} ${res.path} ${res.data}`;
-        } else {
-            log.info(`created label ${res.data.name}`);
+    return new Promise((resolve, reject) => {
+        let data = {
+            name: `${type}: ${title}`,
+            color: genColor()
         }
-    }).catch((err) => {
-        throw err.stack;
+
+        let options = {
+            path: `/repos/${repo.owner}/${repo.name}/labels`
+        }
+
+        request.post(options, data).then((response) => {
+            console.log(response);
+            resolve();
+        });
+
     });
 }
 
