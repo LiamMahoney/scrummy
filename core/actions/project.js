@@ -10,7 +10,7 @@ function createProject(name, description, repo) {
     return new Promise((resolve, reject) => {
         let data = {
             name: name,
-            color: description
+            body: description
         }
 
         let options = {
@@ -28,6 +28,14 @@ function createProject(name, description, repo) {
             }            
         });
     });
+}
+
+/**
+ * 
+ * @param {string} url: API url to get project detials
+ */
+function getProject(url) {
+
 }
 
 module.exports = {

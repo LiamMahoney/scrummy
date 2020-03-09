@@ -1,4 +1,4 @@
-const { Label } = require('../actions');
+const { Project } = require('../states');
 
 /**
  * Figures out which action is needed based on the github proejct webook
@@ -9,15 +9,9 @@ const { Label } = require('../actions');
  */
 function project(data) {
     return new Promise((resolve, reject) => {
-        
-        let repo = {
-            owner: data.repository.owner.login,
-            name: data.repository.name
-        }
-
         switch (data.action) {
             case 'created':
-                resolve(Label.createLabel("project", data.project.name.toLowerCase(), repo));
+                resolve(Project.newProjectCreated(data));
                 break;
         }
     });

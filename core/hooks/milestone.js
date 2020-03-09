@@ -1,22 +1,15 @@
-const { Project } = require('../actions');
+const { Milestone } = require('../states');
 
 /**
  *
  */
 function milestone(data) {
     return new Promise((resolve, reject) => {
-        
-        let repo = {
-            owner: data.repository.owner.login,
-            name: data.repository.name
-        }
-
         switch (data.action) {
             case 'created':
-                resolve(Project.createProject(data.milestone.title, `${data.milestone.description}\nDue on: ${data.milestone.due_on}`, repo));
+                resolve(Milestone.milestoneCreated(data));
                 break;
-        }
-        
+        }      
     });
 }
 
