@@ -1,4 +1,6 @@
 const request = require('../../utils/request');
+const url = require('url');
+
 /**
  * Creates a new project board.
  * 
@@ -32,12 +34,28 @@ function createProject(name, description, repo) {
 
 /**
  * 
- * @param {string} url: API url to get project detials
+ * @param {string} apiURL: API url to get project detials
  */
-function getProject(url) {
+function getProject(apiURL) {
+    return new Promise((resolve, reject) => {
+        let options = {
+            path: url.parse(apiURL).pathname,
+            headers: {
+                Accept: 'application/vnd.github.inertia-preview+json'
+            }
+        }
 
+        request.get(options).then((res) => {
+            if (res.statusCode === 200) {
+                resolve(res);
+            } else {
+                reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+            }
+        });
+    });
 }
 
 module.exports = {
-    createProject
+    createProject,
+    getProject
 }

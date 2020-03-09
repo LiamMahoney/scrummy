@@ -6,7 +6,7 @@ const { Label } = require('../actions');
  * 
  * @param {JSON} data: Github webhook data 
  */
-function newProjectCreated(data) {
+function projectCreated(data) {
     return new Promise((resolve, reject) => {
         let repo = {
             owner: data.repository.owner.login,
@@ -18,5 +18,5 @@ function newProjectCreated(data) {
 }
 
 module.exports = {
-    newProjectCreated
+    projectCreated
 }

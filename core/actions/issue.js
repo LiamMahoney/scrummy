@@ -21,3 +21,7 @@ function getIssue(apiURL) {
         });
     });
 }
+
+module.exports = {
+    getIssue
+}

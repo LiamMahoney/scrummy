@@ -11,7 +11,7 @@ function project(data) {
     return new Promise((resolve, reject) => {
         switch (data.action) {
             case 'created':
-                resolve(Project.newProjectCreated(data));
+                resolve(Project.projectCreated(data));
                 break;
         }
     });

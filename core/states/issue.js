@@ -1,22 +1,25 @@
-const { Label } = require('../actions');
+const { Label, Issue, Project } = require('../actions');
 
 /**
- * Creates a new 'project: <project>' label with the name
- * of the project just created.
  * 
- * @param {JSON} data: Github webhook data 
+ * @param {*} data 
  */
-function newProjectCreated(data) {
+function issueAddedToProject(data) {
     return new Promise((resolve, reject) => {
-        let repo = {
-            owner: data.repository.owner.login,
-            name: data.repository.name
+        if (data.project_card.content_url) {
+            // making sure it's an issue and not just a project card (only issues have content_url)
+            Project.getProject(data.project_card.project_url).then((response) => {
+                let projectName = response.data.name;
+                //TODO: left off here.
+            });
+        } else {
+            // not an issue, nothing to do
+            // TODO: is this empty resolve needed? probably not?
+            resolve();
         }
-
-        resolve(Label.createLabel("project", data.project.name.toLowerCase(), repo));
     });
 }
 
 module.exports = {
-    newProjectCreated
+    issueAddedToProject
 }
