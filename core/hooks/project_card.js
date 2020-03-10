@@ -10,7 +10,7 @@ function projectCard(data) {
         switch (data.action) {
             case 'created':
                 // issue added to project or standalone project card created
-                resolve(Issue.issueAddedToProject(data));
+                return resolve(Issue.issueAddedToProject(data));
                 break;
         }   
     });

@@ -16,7 +16,7 @@ function milestoneCreated(data) {
             name: data.repository.name
         }
 
-        resolve(Project.createProject(data.milestone.title, `${data.milestone.description}\nDue on: ${data.milestone.due_on}`, repo));
+        return resolve(Project.createProject(data.milestone.title, `${data.milestone.description}\nDue on: ${data.milestone.due_on}`, repo));
     });
 }
 

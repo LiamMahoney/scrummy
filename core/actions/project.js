@@ -24,9 +24,9 @@ function createProject(name, description, repo) {
 
         request.post(options, data).then((res) => {
             if (res.statusCode === 201) {
-                resolve(`created new project '${res.data.name}'`);
+                return resolve(`created new project '${res.data.name}'`);
             } else {
-                reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+                return reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }            
         });
     });
@@ -47,9 +47,9 @@ function getProject(apiURL) {
 
         request.get(options).then((res) => {
             if (res.statusCode === 200) {
-                resolve(res);
+                return resolve(res);
             } else {
-                reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+                return reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
         });
     });

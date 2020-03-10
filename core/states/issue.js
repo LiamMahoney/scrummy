@@ -15,7 +15,7 @@ function issueAddedToProject(data) {
         } else {
             // not an issue, nothing to do
             // TODO: is this empty resolve needed? probably not?
-            resolve();
+            return resolve();
         }
     });
 }

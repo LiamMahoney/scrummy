@@ -31,7 +31,7 @@ function get(opts) {
             });
 
             res.on('end', function () {
-                resolve({
+                return resolve({
                     data: JSON.parse(data),
                     statusCode: this.statusCode,
                     path: this.req.path,
@@ -41,7 +41,7 @@ function get(opts) {
         });
 
         req.on('error', (err) => {
-            reject(err);
+            return reject(err);
         });
 
         req.end();
@@ -78,7 +78,7 @@ function post(opts, data) {
             res.on('data', (d) => {
                 data += d;
             }).on('end', function () {
-                resolve({
+                return resolve({
                     data: JSON.parse(data),
                     statusCode: this.statusCode,
                     path: this.req.path,
@@ -89,7 +89,7 @@ function post(opts, data) {
         });
 
         req.on('error', (err) => {
-            reject(err);
+            return reject(err);
         });
 
         req.write(JSON.stringify(data));

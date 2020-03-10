@@ -17,7 +17,7 @@ function getIssue(apiURL) {
         }
 
         request.get(options).then((response) => {
-            resolve(response);
+            return resolve(response);
         });
     });
 }
