@@ -20,10 +20,32 @@ function createLabel(type, title, repo) {
 
         request.post(options, data).then((res) => {
             if (res.statusCode === 201) {
-                resolve(`created new label '${res.data.name}'`);
+                return resolve(`created new label '${res.data.name}'`);
             } else {
-                reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+                return reject(new Error(`expected: 201 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }            
+        });
+    });
+}
+
+/**
+ * Gets all of the labels in the repository.
+ * 
+ * @param {Object} repo: repository information {name: "repository name", owner: "owner github login"}
+ * @returns {array}: list of all the label objects in the repository
+ */
+function getAllRepositoryLabels(repo) {
+    return new Promise((resolve, reject) => {
+        let options = {
+            path: `/repos/${repo.owner}/${repo.name}/labels`
+        }
+
+        request.get(options).then((res) => {
+            if (res.statusCode === 200) {
+                return resolve(res);
+            } else {
+                return reject(new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`))
+            }
         });
     });
 }
