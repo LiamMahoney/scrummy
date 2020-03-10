@@ -32,7 +32,7 @@ function createLabel(type, title, repo) {
  * Gets all of the labels in the repository.
  * 
  * @param {Object} repo: repository information {name: "repository name", owner: "owner github login"}
- * @returns {array}: list of all the label objects in the repository
+ * @returns {Array}: list of all the label objects in the repository
  */
 function getAllRepositoryLabels(repo) {
     return new Promise((resolve, reject) => {
@@ -44,7 +44,35 @@ function getAllRepositoryLabels(repo) {
             if (res.statusCode === 200) {
                 return resolve(res);
             } else {
-                return reject(new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`))
+                return reject(new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+            }
+        });
+    });
+}
+
+/**
+ * Adds the list of label names to the issue
+ * 
+ * @param {Array} labels: list of label names
+ * @param {int} issueNumber: the issue number
+ * @param {Object} repo: repository information {name: "repository name", owner: "owner github login"}
+ */
+function addLabelsToIssue(labels, issueNumber, repo) {
+    return new Promise((resolve, reject) => {
+        let options = {
+            path: `/repos/${repo.owner}/${repo.name}/issues/${issueNumber}/labels`
+        }
+
+        request.post(options, labels).then((res) => {
+            if (res.statusCode === 200) {
+                // getting issue number from the path of the request (returned from request)
+                let issueNumber = res.path.match(/\/(\d*?)\//)[1];
+                // array of tag names built from response objects
+                let tags = res.data.map(obj => obj.name);
+
+                return resolve(`Added the tags: [${tags.join(", ")}] to issue ${issueNumber}`);
+            } else {
+                return reject(new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
         });
     });
@@ -59,5 +87,7 @@ function genColor() {
 }
 
 module.exports = {
-    createLabel
+    createLabel,
+    getAllRepositoryLabels, 
+    addLabelsToIssue
 }
