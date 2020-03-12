@@ -1,7 +1,7 @@
 const { Label, Issue, Project } = require('../actions');
 
 /**
- * 
+ * TODO:
  * @param {*} data 
  */
 function issueAddedToProject(data) {
@@ -41,5 +41,5 @@ function issueAddedToProject(data) {
 }
 
 module.exports = {
-    issueAddedToProject
+    issueAddedToProject,
 }
