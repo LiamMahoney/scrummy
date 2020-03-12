@@ -22,6 +22,27 @@ function getIssue(apiURL) {
     });
 }
 
+/**
+ * Gets the events of the issue.
+ * 
+ * @param {int} issue_number: the issue number
+ * @param {*} repo: repository information {name: "repository name", owner: "owner github login"}
+ */
+function getIssueEvents(issue_number, repo) {
+    return new Promise((resolve, reject) => {
+        let options = {
+            path: `/repos/${repo.owner}/${repo.name}/issues/${issue_number}/events`,
+            headers: {
+                Accept: 'application/vnd.github.starfox-preview+json'
+            }
+        }
+
+        request.get(options).then((response) => {
+            return resolve(response);
+        });
+    });
+}   
+
 module.exports = {
     getIssue
 }
