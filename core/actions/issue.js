@@ -44,5 +44,6 @@ function getIssueEvents(issue_number, repo) {
 }   
 
 module.exports = {
-    getIssue
+    getIssue,
+    getIssueEvents
 }
