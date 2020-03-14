@@ -53,7 +53,6 @@ function get(opts) {
  * 
  * @param {Object} opts: various HTTP request options
  * @param {Object} data: post data to send
- * @param {Function} callback: callback function to call when the request is done
  */
 function post(opts, data) {
     //TODO: validate options
@@ -98,11 +97,10 @@ function post(opts, data) {
 }
 
 /**
- * Sends a HTTP post request to the Github API.
+ * Sends a HTTP post request to the Github GraphQL API.
  * 
  * @param {Object} opts: various HTTP request options
  * @param {Object} data: post data to send
- * @param {Function} callback: callback function to call when the request is done
  */
 function graphQLPost(opts, data) {
     //TODO: validate options
