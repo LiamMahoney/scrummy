@@ -86,8 +86,25 @@ function genColor() {
     return Math.floor(Math.random() * 16777215).toString(16);
 }
 
+async function removeLabelFromProject(labelName, issueNumber, repoData) {
+        let options = {
+            path: `/repos/${repoData.owner}/${repoData.name}/issues/${issueNumber}/labels/${labelName}`
+        }
+
+        let res = await request.del(options);
+
+        if (res.statusCode === 200) {
+            return `removed the label ${res.data.name} from issue ${issueNumber}`;
+        } else if (res.statusCode === 404) {
+            return `didn't find the label ${labelName} on the issue ${issueNumber}`;
+        } else {
+            throw new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`);
+        }
+}
+
 module.exports = {
     createLabel,
     getAllRepositoryLabels, 
-    addLabelsToIssue
+    addLabelsToIssue,
+    removeLabelFromProject
 }

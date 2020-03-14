@@ -47,6 +47,7 @@ function getProject(apiURL) {
 
         request.get(options).then((res) => {
             if (res.statusCode === 200) {
+                //FIXME: should this just return res.data?
                 return resolve(res);
             } else {
                 return reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
@@ -55,7 +56,33 @@ function getProject(apiURL) {
     });
 }
 
+/**
+ * Gets project column information
+ * 
+ * @param {string} columnURL API url to get projet column details
+ */
+function getProjectColumn(columnURL) {
+    return new Promise((resolve, reject) => {
+        let options = {
+            path: url.parse(columnURL).pathname,
+            headers: {
+                Accept: 'application/vnd.github.inertia-preview+json'
+            }
+        }
+
+        request.get(options).then((res) => {
+            if (res.statusCode === 200) {
+                //FIXME: should this just return res.data?
+                resolve(res.data);
+            } else {
+                return reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
+            }
+        });
+    })
+}
+
 module.exports = {
     createProject,
-    getProject
+    getProject,
+    getProjectColumn
 }

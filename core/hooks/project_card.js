@@ -12,6 +12,10 @@ function projectCard(data) {
                 // issue added to project or standalone project card created
                 return resolve(Issue.issueAddedToProject(data));
                 break;
+            case 'moved':
+                // issue is moved in project
+                return resolve(Issue.issueMovedProjectColumn(data));
+                break;
         }   
     });
 }

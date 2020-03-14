@@ -41,9 +41,56 @@ function getIssueEvents(issue_number, repo) {
             return resolve(response);
         });
     });
-}   
+}
+
+/**
+ * 
+ * @param {int} issue: issue number
+ * @param {Object} repo: repository information {name: "repository name", owner: "owner github login"}
+ */
+function getIssueProjectCards(issue, repo) {
+    return new Promise((resolve, reject) => {
+        let data = {
+            query: `query {
+                repository(owner:"${repo.owner}", name:"${repo.name}") {
+                    issue(number:${issue}) {
+                        title
+                        projectCards {
+                            edges{
+                                node {
+                                    id
+                                    column {
+                                        id
+                                        name
+                                    }
+                                    project {
+                                        id
+                                        name
+                                        columns(first: 20){
+                                            edges {
+                                                node{
+                                                    id
+                                                    name
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }`
+        }
+
+        request.graphQLPost({}, data).then((response) => {
+            return resolve(response);
+        });
+    });
+}
 
 module.exports = {
     getIssue,
-    getIssueEvents
+    getIssueEvents,
+    getIssueProjectCards
 }
