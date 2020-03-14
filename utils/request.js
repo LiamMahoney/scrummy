@@ -150,5 +150,6 @@ function graphQLPost(opts, data) {
 
 module.exports = {
     get,
-    post
+    post,
+    graphQLPost
 }
