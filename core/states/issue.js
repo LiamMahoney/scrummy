@@ -90,7 +90,7 @@ function moveProjectCards(projectCards, columnName) {
 async function addStageLabelToIssue(columnName, repoLabels, issueDetails, repoData) {
     try {
         let labelName = await matchColumnToLabel(columnName, repoLabels.data);
-        // Need to pass the old stage: <stage> label to removeLablFromProject, not the label to add! 
+        // TODO: Need to pass the old stage: <stage> label to removeLablFromProject, not the label to add! 
         return await Promise.all([Label.removeLabelFromProject(labelName, issueDetails.data.number, repoData), Label.addLabelsToIssue([labelName], issueDetails.data.number, repoData)]);
     } catch (err) {
         return err;
