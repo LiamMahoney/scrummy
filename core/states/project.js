@@ -13,7 +13,11 @@ function projectCreated(data) {
             name: data.repository.name
         }
 
-        return resolve(Label.createLabel("project", data.project.name.toLowerCase(), repo));
+        Label.createLabel("project", data.project.name.toLowerCase(), repo).then((response) => {
+            return resolve(response);
+        }).catch((err) => {
+            return reject(err);
+        });
     });
 }
 

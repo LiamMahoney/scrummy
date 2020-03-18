@@ -13,14 +13,26 @@ function scrummy(type, data) {
         console.debug(`scrummy recieved hook with type: ${type} and action ${data.action}`);
         switch (type) {
             case 'project':
-                resolve(project(data));
-                break;
+                project(data).then((response) => {
+                    return resolve(response);
+                }).catch((err) => {
+                    return reject(err);
+                });
+                break; //FIXME: is this redundant
             case 'milestone':
-                resolve(milestone(data));
-                break;
+                milestone(data).then((response) => {
+                    return resolve(response);
+                }).catch((err) => {
+                    return reject(err);
+                });
+                break; // FIXME: is this redundant
             case 'project_card':
-                resolve(projectCard(data));
-                break;
+                projectCard(data).then((response) => {
+                    return resolve(response);
+                }).catch((err) => {
+                    return reject(err);
+                });
+                break; // FIXME: is this redundant?
             default:
                 return;
         }

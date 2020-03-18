@@ -28,6 +28,8 @@ function createProject(name, description, repo) {
             } else {
                 return reject(new Error(`expected: 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }            
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }
@@ -52,6 +54,8 @@ function getProject(apiURL) {
             } else {
                 return reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }
@@ -77,6 +81,8 @@ function getProjectColumn(columnURL) {
             } else {
                 return reject(new Error(`expected 200 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
+        }).catch((err) => {
+            return reject(err);
         });
     })
 }

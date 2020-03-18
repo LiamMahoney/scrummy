@@ -46,6 +46,8 @@ function getAllRepositoryLabels(repo) {
             } else {
                 return reject(new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }
@@ -74,6 +76,8 @@ function addLabelsToIssue(labels, issueNumber, repo) {
             } else {
                 return reject(new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }
@@ -87,6 +91,7 @@ function genColor() {
 }
 
 async function removeLabelFromProject(labelName, issueNumber, repoData) {
+    try{
         let options = {
             path: `/repos/${repoData.owner}/${repoData.name}/issues/${issueNumber}/labels/${labelName}`
         }
@@ -100,6 +105,9 @@ async function removeLabelFromProject(labelName, issueNumber, repoData) {
         } else {
             throw new Error(`expected: 200 recieved: ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`);
         }
+    } catch (err) {
+        throw err;
+    }   
 }
 
 module.exports = {

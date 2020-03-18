@@ -18,6 +18,8 @@ function getIssue(apiURL) {
 
         request.get(options).then((response) => {
             return resolve(response);
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }
@@ -39,6 +41,8 @@ function getIssueEvents(issue_number, repo) {
 
         request.get(options).then((response) => {
             return resolve(response);
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }
@@ -85,6 +89,8 @@ function getIssueProjectCards(issue, repo) {
 
         request.graphQLPost({}, data).then((response) => {
             return resolve(response);
+        }).catch((err) => {
+            return reject(err);
         });
     });
 }

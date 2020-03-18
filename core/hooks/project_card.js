@@ -10,12 +10,20 @@ function projectCard(data) {
         switch (data.action) {
             case 'created':
                 // issue added to project or standalone project card created
-                return resolve(Issue.issueAddedToProject(data));
-                break;
+                Issue.issueAddedToProject(data).then((response) => {
+                    return resolve(response);
+                }).catch((err) => {
+                    return reject(err);
+                });
+                break; // FIXME: redundant?
             case 'moved':
                 // issue is moved in project
-                return resolve(Issue.issueMovedProjectColumn(data));
-                break;
+                Issue.issueMovedProjectColumn(data).then((response) => {
+                    return resolve(response);
+                }).catch((err) => {
+                    return reject(err);
+                });
+                break; // FIXME: I think this is redundant...?
         }   
     });
 }

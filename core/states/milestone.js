@@ -16,7 +16,11 @@ function milestoneCreated(data) {
             name: data.repository.name
         }
 
-        return resolve(Project.createProject(data.milestone.title, `${data.milestone.description}\nDue on: ${data.milestone.due_on}`, repo));
+        Project.createProject(data.milestone.title, `${data.milestone.description}\nDue on: ${data.milestone.due_on}`, repo).then((response) => {
+            return resolve(response);
+        }).catch((err) => {
+            return reject(err);
+        });
     });
 }
 

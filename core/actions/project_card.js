@@ -28,6 +28,8 @@ function moveProjectCard(id, position, columnID) {
             } else {
                 return reject(new Error(`expected 201 recieved ${res.statusCode} ${res.method} ${res.path}\nresponse data: ${JSON.stringify(res.data)}`));
             }
+        }).catch((err) => {
+            return reject(err);
         })
     });
 }

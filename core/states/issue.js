@@ -35,6 +35,8 @@ function issueAddedToProject(data) {
                 }
 
                 return reject(new Error(`no label found for project ${projectName}`));
+            }).catch((err) => {
+                return reject(err);
             });
         }
     });
@@ -70,6 +72,8 @@ function moveProjectCards(projectCards, columnName) {
                 let projectCardID = Buffer.from(proj.node.id, 'base64').toString('utf-8');
                 let columnId = Buffer.from(response, 'base64').toString('utf-8');
                 promList.push(ProjectCard.moveProjectCard(projectCardID.substr(projectCardID.indexOf('d') + 1), "bottom", columnId.substr(columnId.indexOf('n') + 1)));
+            }).catch((err) => {
+                return reject(err);
             });
         }
 
@@ -95,9 +99,6 @@ async function addStageLabelToIssue(columnName, repoLabels, issueDetails, repoDa
     } catch (err) {
         return err;
     }
-
-    
-
 }
 
 

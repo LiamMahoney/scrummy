@@ -11,8 +11,12 @@ function project(data) {
     return new Promise((resolve, reject) => {
         switch (data.action) {
             case 'created':
-                return resolve(Project.projectCreated(data));
-                break;
+                Project.projectCreated(data).then((response) => {
+                    return resolve(response);
+                }).catch((err) => {
+                    return reject(err);
+                });
+                break; //FIXME: is this redundant?
         }
     });
 }
