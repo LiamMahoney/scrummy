@@ -5,27 +5,18 @@ const { Issue } = require('../states');
  * @param {*} data 
  */
 function projectCard(data) {
-    return new Promise((resolve, reject) => {
-
+    try{
         switch (data.action) {
             case 'created':
                 // issue added to project or standalone project card created
-                Issue.issueAddedToProject(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; // FIXME: redundant?
+                return await Issue.issueAddedToProject(data);
             case 'moved':
                 // issue is moved in project
-                Issue.issueMovedProjectColumn(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; // FIXME: I think this is redundant...?
+                return await Issue.issueMovedProjectColumn(data);
         }   
-    });
+    } catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

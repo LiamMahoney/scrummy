@@ -8,17 +8,14 @@ const { Project } = require('../states');
  * @param {Object} data: github webhook json data
  */
 function project(data) {
-    return new Promise((resolve, reject) => {
+    try {
         switch (data.action) {
             case 'created':
-                Project.projectCreated(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; //FIXME: is this redundant?
+                return await Project.projectCreated(data);
         }
-    });
+    } catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

@@ -11,7 +11,17 @@ app.use(express.json());
 app.post("/", verifyPostData, (req, res) => {
 
     scrummy(req.headers['x-github-event'], req.body).then((output) => {
-        log.info(output);
+        if (typeof output === 'string') {
+            // only one thing to log
+            log.info(output);
+        } else if (typeof output === 'object') {
+            // multiple messages to log
+            for (msg of output) {
+                log.info(msg);
+            }
+        } else {
+            log.warn(`recieved output of type ${typeof output}. Output: ${output}`)
+        }
     }).catch((err) => {
         log.error(err.stack);
     })

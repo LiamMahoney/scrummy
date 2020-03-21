@@ -3,18 +3,15 @@ const { Milestone } = require('../states');
 /**
  *
  */
-function milestone(data) {
-    return new Promise((resolve, reject) => {
+async function milestone(data) {
+    try {
         switch (data.action) {
             case 'created':
-                Milestone.milestoneCreated(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; //FIXME: is this redundant?
+                return await Milestone.milestoneCreated(data);
         }      
-    });
+    } catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

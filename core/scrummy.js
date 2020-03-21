@@ -2,41 +2,29 @@ const { project, milestone, projectCard } = require('./hooks');
 
 /**
  * The main controller of the program. This function decides
- * what type of hook was returned and passed the data to the 
- * appropriate part of the program to handle the data.
+ * what type of hook was sent and passes the data to the 
+ * appropriate part of the program to appropriately respond
+ * to what was done.
  * 
  * @param {string} type: webhook type that was recieved
  * @param {object} data: post data from webhook
  */
 function scrummy(type, data) {
-    return new Promise((resolve, reject) => {
+    try {
         console.debug(`scrummy recieved hook with type: ${type} and action ${data.action}`);
         switch (type) {
             case 'project':
-                project(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; //FIXME: is this redundant
+                return await project(data);
             case 'milestone':
-                milestone(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; // FIXME: is this redundant
+                return await milestone(data);
             case 'project_card':
-                projectCard(data).then((response) => {
-                    return resolve(response);
-                }).catch((err) => {
-                    return reject(err);
-                });
-                break; // FIXME: is this redundant?
+                return await projectCard(data);
             default:
                 return;
         }
-    });
+    } catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

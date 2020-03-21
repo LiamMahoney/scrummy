@@ -6,18 +6,19 @@
  * 
  * @param {Object} data: github webhook json data
  */
-function issues(data) {
-    return new Promise((resolve, reject) => {
-        
+async function issues(data) {
+    try {        
         let repo = {
             owner: data.repository.owner.login,
             name: data.repository.name
         }
 
         switch (data.action) {
-
+            
         }
-    });
+    } catch (err) {
+        throw err;
+    }
 }
 
 module.exports = {

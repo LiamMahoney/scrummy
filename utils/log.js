@@ -4,9 +4,8 @@ const config = require('../config/config.json');
 
 const log = winston.createLogger({
     format: winston.format.combine(
-        winston.format.label({ label: path.basename(process.mainModule.filename) }),
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        winston.format.printf(info => `${info.timestamp} [${info.level}] ${info.label}: ${info.message}`)
+        winston.format.printf(info => `${info.timestamp} [${info.level}] ${info.message}`)
     ),
     transports: [
         new winston.transports.File({
