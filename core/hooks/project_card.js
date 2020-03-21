@@ -12,10 +12,9 @@ async function projectCard(data) {
                 return await Issue.issueAddedToProject(data);
             case 'moved':
                 // issue is moved in project
-                return await Issue.issueMovedProjectColumn(data);
         }   
     } catch (err) {
-        throw err;
+        throw new Error(err.stack);
     }
 }
 

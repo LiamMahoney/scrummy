@@ -30,12 +30,19 @@ function post(opts, data) {
             res.on('data', (d) => {
                 data += d;
             }).on('end', function () {
-                return resolve({
-                    data: JSON.parse(data),
-                    statusCode: this.statusCode,
-                    path: this.req.path,
-                    method: this.req.method
-                });
+                if (this.statusCode === 200) {
+
+                    let jdata = JSON.parse(data);
+                    
+                    if (jdata.errors.length > 0) {
+                        // TODO: need to loop through jata array objects to create an array that holds all error messages.
+                        reject (new Error(jdata.errors.join(" - ")));
+                    } else {
+                        resolve (jdata);
+                    }
+                } else {
+                    reject (new Error(`expected 200 but got ${this.statusCode} for ${this.req.method} ${this.req.path}`));
+                }
             });
 
         });
