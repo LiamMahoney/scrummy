@@ -143,8 +143,29 @@ function del(opts) {
     });
 }
 
+/**
+ * Determines if the response from the REST api was successful
+ * or not. If not, formats the error message based on the data
+ * recieved from the response.
+ * 
+ * @param {int} expectedCode the expected HTTP code of the repsonse
+ * @param {Object} resp the response object from one of [get, post, del] methods above
+ */
+async function handleRest(expectedCode, resp) {
+    try {
+        if (resp.statusCode === expectedCode) {
+            return resp.data;
+        } else {
+            throw new Error(`expected ${expectedCode} received ${resp.statusCode} - ${resp.method} ${resp.path}: ${resp.data.message}`);
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     get,
     post,
-    del
+    del,
+    handleRest
 }
