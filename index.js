@@ -1,5 +1,4 @@
 const config = require('./config/config.json');
-const { log } = require('./utils/log');
 const express = require('express');
 const { scrummy } = require('./core/scrummy');
 const { verifyPostData } = require('./utils/verify');
@@ -10,22 +9,8 @@ app.use(express.json());
 
 app.post("/", verifyPostData, (req, res) => {
 
-    scrummy(req.headers['x-github-event'], req.body).then((output) => {
-        if (typeof output === 'string') {
-            // only one thing to log
-            log.info(output);
-        } else if (typeof output === 'object') {
-            // multiple messages to log
-            for (msg of output) {
-                log.info(msg);
-            }
-        } else {
-            log.warn(`recieved output of type ${typeof output}. Output: ${output}`)
-        }
-    }).catch((err) => {
-        log.error(err.stack);
-    })
-
+    scrummy(req.headers['x-github-event'], req.body);
+    // don't care if scrummy fails or not, the webhook won't alert
     res.status(200).send();
 });
 
