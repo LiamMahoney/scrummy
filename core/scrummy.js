@@ -9,7 +9,7 @@ const { project, milestone, projectCard } = require('./hooks');
  * @param {string} type: webhook type that was recieved
  * @param {object} data: post data from webhook
  */
-function scrummy(type, data) {
+async function scrummy(type, data) {
     try {
         console.debug(`scrummy recieved hook with type: ${type} and action ${data.action}`);
         switch (type) {
