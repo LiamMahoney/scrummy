@@ -16,12 +16,7 @@ async function getAllLabels(repoOwner, repoName) {
 
         let resp = await request.get(opts);
 
-        if (resp.statusCode === 200) {
-            return resp.data;
-        } else {
-            //TODO: update with more information
-            throw new Error(`expected 200 recieved: ${resp.statusCode} - ${resp.method} ${resp.path}: ${resp.data}`);
-        }
+        return await request.handleRest(200, resp);
 
     } catch (err) {
         throw new Error (err.stack);
