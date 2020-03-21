@@ -7,7 +7,7 @@ const { Project } = require('../states');
  * 
  * @param {Object} data: github webhook json data
  */
-function project(data) {
+async function project(data) {
     try {
         switch (data.action) {
             case 'created':

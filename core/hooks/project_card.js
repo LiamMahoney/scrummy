@@ -4,7 +4,7 @@ const { Issue } = require('../states');
  * 
  * @param {*} data 
  */
-function projectCard(data) {
+async function projectCard(data) {
     try{
         switch (data.action) {
             case 'created':
