@@ -20,8 +20,6 @@ async function determineHook(type, data) {
                 return await milestone(data);
             case 'project_card':
                 return await projectCard(data);
-            default:
-                return;
         }
     } catch (err) {
         throw err;
@@ -45,6 +43,8 @@ async function scrummy(type, data) {
             for (msg of resp) {
                 log.info(msg);
             }
+        } else if (typeof resp === 'undefined') {
+            // do nothing
         } else {
             log.warn(`scrummy ended with a message of type ${typeof resp}: ${resp}`);
         }
