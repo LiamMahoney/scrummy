@@ -81,11 +81,12 @@ async function removeLabels(issue, labels, repoOwner, repoName) {
     } catch (err) {
 
         throw new Error(err.stack);
-        
+
     }
 }
 
 module.exports = {
     getIssue,
-    addLabels
+    addLabels,
+    removeLabels
 }
