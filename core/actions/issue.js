@@ -9,6 +9,7 @@ const url = require('url');
  */
 async function getIssue(issURL) {
     try {
+
         let options = {
             path: url.parse(issURL).path
         }
@@ -18,7 +19,9 @@ async function getIssue(issURL) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
+
         throw new Error(err.stack);
+
     } 
 }
 
@@ -32,6 +35,7 @@ async function getIssue(issURL) {
  */
 async function addLabels(issue, labels, repoOwner, repoName) {
     try {
+
         let options = {
             path: `/repos/${repoOwner}/${repoName}/issues/${issue}/labels`
         }
@@ -45,7 +49,39 @@ async function addLabels(issue, labels, repoOwner, repoName) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
+
         throw new Error(err.stack);
+
+    }
+}
+
+/**
+ * Removes labels from a GitHub issue.
+ * 
+ * @param {int} issue Github issue number
+ * @param {Array} labels label name strings to add e.g. ['duplicate', 'bug']
+ * @param {String} repoOwner Github login of the owner of the repo
+ * @param {String} repoName name of the repository
+ */
+async function removeLabels(issue, labels, repoOwner, repoName) {
+    try {
+
+        let options = {
+            path: `/repos/${repoOwner}/${repoName}/issues/${issue}/labels`
+        }
+
+        let payload = {
+            labels: labels
+        }
+
+        let resp = await request.del(options, payload);
+
+        return await request.handleRest(200, resp);
+
+    } catch (err) {
+
+        throw new Error(err.stack);
+        
     }
 }
 
