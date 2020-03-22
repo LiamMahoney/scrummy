@@ -56,25 +56,21 @@ async function addLabels(issue, labels, repoOwner, repoName) {
 }
 
 /**
- * Removes labels from a GitHub issue.
+ * Removes a label from a GitHub issue.
  * 
  * @param {int} issue Github issue number
- * @param {Array} labels label name strings to add e.g. ['duplicate', 'bug']
+ * @param {String} label label name
  * @param {String} repoOwner Github login of the owner of the repo
  * @param {String} repoName name of the repository
  */
-async function removeLabels(issue, labels, repoOwner, repoName) {
+async function removeLabel(issue, label, repoOwner, repoName) {
     try {
 
         let options = {
-            path: `/repos/${repoOwner}/${repoName}/issues/${issue}/labels`
+            path: `/repos/${repoOwner}/${repoName}/issues/${issue}/labels/${label}`
         }
 
-        let payload = {
-            labels: labels
-        }
-
-        let resp = await request.del(options, payload);
+        let resp = await request.del(options);
 
         return await request.handleRest(200, resp);
 
@@ -88,5 +84,5 @@ async function removeLabels(issue, labels, repoOwner, repoName) {
 module.exports = {
     getIssue,
     addLabels,
-    removeLabels
+    removeLabel
 }
