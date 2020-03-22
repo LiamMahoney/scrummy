@@ -33,7 +33,7 @@ async function issueRemovedFromProject(data) {
         if (data.project_card.content_url) {
             let [issue, labelToRemove] = await findProjectLabel(data);
 
-            return await Issue.removeLabels(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
+            return await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
         }
     } catch (err) {
         throw new Error(err.stack);
