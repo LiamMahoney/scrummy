@@ -43,7 +43,6 @@ async function issueRemovedFromProject(data) {
 
             let resp = await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
 
-            // resp isnt' returning as the documentation says... going to use label found earlier in method
             return `removed label '${labelToRemove.name}' from issue #${issue.number}`;
         }
     } catch (err) {
