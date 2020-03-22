@@ -13,7 +13,15 @@ async function issueAddedToProject(data) {
         if (data.project_card.content_url) {
             let [issue, labelToAdd] = await findProjectLabel(data);
 
-            return await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
+            let resp = await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
+
+            // getting the labels that were added from the response to form the return statement (what is logged)
+            labelsAdded = [];
+            for (label of resp) {
+                labelsAdded.push(label.name);
+            }
+
+            return `added label(s) [${labelsAdded.join(', ')}] to issue #${issue.number}`;
         }
     } catch (err) {
         throw new Error(err.stack);
@@ -33,7 +41,10 @@ async function issueRemovedFromProject(data) {
         if (data.project_card.content_url) {
             let [issue, labelToRemove] = await findProjectLabel(data);
 
-            return await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
+            let resp = await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
+
+            // resp isnt' returning as the documentation says... going to use label found earlier in method
+            return `removed label '${labelToRemove.name}' from issue #${issue.number}`;
         }
     } catch (err) {
         throw new Error(err.stack);
