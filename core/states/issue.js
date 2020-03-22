@@ -93,5 +93,6 @@ async function matchProjectLabel(projectName, labels) {
 }
 
 module.exports = {
-    issueAddedToProject
+    issueAddedToProject,
+    issueRemovedFromProject
 }
