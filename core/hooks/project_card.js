@@ -13,6 +13,9 @@ async function projectCard(data) {
             case 'deleted':
                 // issue removed from a project or standalone project card deleted
                 return await Issue.issueRemovedFromProject(data);
+            case 'converted':
+                // project card converted into an issue
+                return await Issue.issueAddedToProject(data);
             case 'moved':
                 // issue is moved in project
         }   
