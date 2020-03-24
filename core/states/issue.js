@@ -51,6 +51,20 @@ async function issueRemovedFromProject(data) {
 }
 
 /**
+ * Adds the matching `<project>: project` and `<stage>`: stage
+ * labels to the issue.
+ * 
+ * @param {Object} data webhook payload
+ */
+async function projectCardConverted(data) {
+    try {
+        
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
  * Finds the matching `project: <project>` for the project
  * the project card (instance of issue) was just added to
  * or removed from.
@@ -69,7 +83,7 @@ async function findProjectLabel(data) {
 
         let [labels, project, issue] = await Promise.all(proms);
 
-        return [issue, await matchProjectLabel(project.name, labels)];
+        return [issue, await matchLabel(project.name, labels)];
 
     } catch (err) {
         throw new Error(err.stack);
@@ -80,14 +94,15 @@ async function findProjectLabel(data) {
  * Finds a matching `project: <project>` label for the 
  * project name passed in.
  * 
- * @param {string} projectName name of a github project
+ * @param {string} labelName 2nd part of the github label to match to
  * @param {Object} labels actions.Label.getAllLabels() response
+ * @param {string} type the type of label to match, could be 'project' or 'stage'
  * @returns {Object} matching `project: <project>` label name/id
  */
-async function matchProjectLabel(projectName, labels) {
+async function matchLabel(labelName, labels, type) {
     try {
         for (label of labels) {
-            if (label.name.replace('project:', '').trim().toLowerCase() === projectName.toLowerCase()) {
+            if (label.name.replace(type, '').trim().toLowerCase() === labelName.toLowerCase()) {
                 return {
                     name: label.name,
                     id: label.id
@@ -95,7 +110,7 @@ async function matchProjectLabel(projectName, labels) {
             }
         }
 
-        throw new Error(`'project: <project>' label not found for project '${projectName}'`);
+        throw new Error(`'${type} <${type}>' label not found for ${type} '${labelName}'`);
 
     } catch (err) {
         throw new Error(err.stack);
@@ -104,5 +119,6 @@ async function matchProjectLabel(projectName, labels) {
 
 module.exports = {
     issueAddedToProject,
-    issueRemovedFromProject
+    issueRemovedFromProject,
+    projectCardConverted
 }

@@ -15,7 +15,7 @@ async function projectCard(data) {
                 return await Issue.issueRemovedFromProject(data);
             case 'converted':
                 // project card converted into an issue
-                return await Issue.issueAddedToProject(data);
+                return await Issue.projectCardConverted(data);
             case 'moved':
                 // issue is moved in project
         }   
