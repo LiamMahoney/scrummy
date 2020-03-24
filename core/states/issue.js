@@ -11,7 +11,11 @@ async function issueAddedToProject(data) {
         // checking that the project card is an instance of an issue
         // only project cards that are instances of issues have the content_url field
         if (data.project_card.content_url) {
-            let [issue, labelToAdd] = await findLabel(data, 'project:');
+            let proms = [];
+            proms.push(Issue.getIssue(data.project_card.content_url));
+            proms.push(findLabel(data, 'project:'));
+
+            let [issue, labelToAdd] = await Promise.all(proms);
 
             let resp = await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
 
@@ -39,7 +43,11 @@ async function issueRemovedFromProject(data) {
         // checking that the project card is an instance of an issue
         // only project cards that are instances of issues have the content_url field
         if (data.project_card.content_url) {
-            let [issue, labelToRemove] = await findLabel(data, 'project:');
+            let proms = [];
+            proms.push(Issue.getIssue(data.project_card.content_url));
+            proms.push(findLabel(data, 'project:'));
+
+            let [issue, labelToRemove] = await Promise.all(proms);
 
             let resp = await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
 
@@ -58,7 +66,8 @@ async function issueRemovedFromProject(data) {
  */
 async function projectCardConverted(data) {
     try {
-        
+        //TODO: 
+        throw new Error('projectCardConvereted is not implemented yet!');
     } catch (err) {
         throw new Error(err.stack);
     }
@@ -68,7 +77,7 @@ async function projectCardConverted(data) {
  * Finds the matching `project: <project>` for the project
  * the project card (instance of issue) was just added to
  * or removed from.
- * TODO: refactor this method to take the Issue.getIssue method call out of here - this should only be doing one thing and issue isn't needed - this functionality should be done in a caller of this method.
+ * 
  * @param {Object} data webhook payload
  * @param {string} type the type of label to match, could be 'project' or 'stage'
  * @returns {Array} index 0 contains information about the issue,
@@ -80,11 +89,10 @@ async function findLabel(data, type) {
         proms = []
         proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
         proms.push(Project.getProject(data.project_card.project_url));
-        proms.push(Issue.getIssue(data.project_card.content_url));
 
-        let [labels, project, issue] = await Promise.all(proms);
+        let [labels, project] = await Promise.all(proms);
 
-        return [issue, await matchLabel(project.name, labels, type)];
+        return await matchLabel(project.name, labels, type);
 
     } catch (err) {
         throw new Error(err.stack);
