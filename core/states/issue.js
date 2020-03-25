@@ -13,7 +13,7 @@ async function issueAddedToProject(data) {
         if (data.project_card.content_url) {
             let proms = [];
             proms.push(Issue.getIssue(data.project_card.content_url));
-            proms.push(findLabel(data, 'project:'));
+            proms.push(findProjectLabel(data));
 
             let [issue, labelToAdd] = await Promise.all(proms);
 
@@ -45,7 +45,7 @@ async function issueRemovedFromProject(data) {
         if (data.project_card.content_url) {
             let proms = [];
             proms.push(Issue.getIssue(data.project_card.content_url));
-            proms.push(findLabel(data, 'project:'));
+            proms.push(findProjectLabel(data));
 
             let [issue, labelToRemove] = await Promise.all(proms);
 
@@ -67,6 +67,9 @@ async function issueRemovedFromProject(data) {
 async function projectCardConverted(data) {
     try {
         //TODO: 
+        let proms = [];
+        proms.push(Issue.getIssue(data.project_card.content_url));
+        proms.push()
         throw new Error('projectCardConvereted is not implemented yet!');
     } catch (err) {
         throw new Error(err.stack);
@@ -79,12 +82,10 @@ async function projectCardConverted(data) {
  * or removed from.
  * 
  * @param {Object} data webhook payload
- * @param {string} type the type of label to match, could be 'project' or 'stage'
- * @returns {Array} index 0 contains information about the issue,
- * index 1 contains an object describing the matching project label
- * to add or remove
+ * @returns {Object} describes the matching project label
+ * to add or remove with name and id keys
  */
-async function findLabel(data, type) {
+async function findProjectLabel(data) {
     try {
         proms = []
         proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
@@ -92,7 +93,7 @@ async function findLabel(data, type) {
 
         let [labels, project] = await Promise.all(proms);
 
-        return await matchLabel(project.name, labels, type);
+        return await matchLabel(project.name, labels, 'project:');
 
     } catch (err) {
         throw new Error(err.stack);
