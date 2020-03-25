@@ -60,19 +60,30 @@ async function issueRemovedFromProject(data) {
 
 /**
  * Adds the matching `<project>: project` and `<stage>`: stage
- * labels to the issue.
+ * labels to the issue. Adds the project and the stage where
+ * the project card was converted.
  * 
  * @param {Object} data webhook payload
  */
 async function projectCardConverted(data) {
     try {
-        //TODO: 
         let proms = [];
         proms.push(Issue.getIssue(data.project_card.content_url));
         proms.push(findProjectLabel(data));
         proms.push(findStageLabel(data));
+
+        let [issue, projectLabel, stageLabel] = await Promise.all(proms);
+
+        let resp = await Issue.addLabels(issue.number, [projectLabel.name, stageLabel.name], data.repository.owner.login, data.repository.name);
         
-        throw new Error('projectCardConvereted is not implemented yet!');
+        // getting the labels that were added from the response to form the return statement (what is logged)
+        labelsAdded = [];
+        for (label of resp) {
+            labelsAdded.push(label.name);
+        }
+
+        return `added label(s) [${labelsAdded.join(', ')}] to issue #${issue.number}`;
+
     } catch (err) {
         throw new Error(err.stack);
     }
