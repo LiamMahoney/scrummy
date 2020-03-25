@@ -69,7 +69,9 @@ async function projectCardConverted(data) {
         //TODO: 
         let proms = [];
         proms.push(Issue.getIssue(data.project_card.content_url));
-        proms.push()
+        proms.push(findProjectLabel(data));
+        proms.push(findStageLabel(data));
+        
         throw new Error('projectCardConvereted is not implemented yet!');
     } catch (err) {
         throw new Error(err.stack);
@@ -87,13 +89,39 @@ async function projectCardConverted(data) {
  */
 async function findProjectLabel(data) {
     try {
-        proms = []
+        proms = [];
         proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
         proms.push(Project.getProject(data.project_card.project_url));
 
         let [labels, project] = await Promise.all(proms);
 
         return await matchLabel(project.name, labels, 'project:');
+
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Finds the matching `project: <project>` for the project
+ * the project card (instance of issue) was just added to
+ * or removed from.
+ * 
+ * FIXME: if I create a general 'get url' request (rather than having 2 identical methods in Project.getProject and Project.getColumn) then I can combine this method and the findProjectLabel method.
+ * 
+ * @param {Object} data webhook payload
+ * @returns {Object} describes the matching project label
+ * to add or remove with name and id keys
+ */
+async function findStageLabel(data) {
+    try {
+        proms = [];
+        proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
+        proms.push(Project.getColumn(data.project_card.column_url));
+
+        let [labels, column] = await Promise.all(proms);
+
+        return await matchLabel(column.name, labels, 'stage:');
 
     } catch (err) {
         throw new Error(err.stack);
