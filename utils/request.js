@@ -156,6 +156,7 @@ async function handleRest(expectedCode, resp) {
         if (resp.statusCode === expectedCode) {
             return resp.data;
         } else {
+            // TODO: need to create better error message here. Check resp.data.errors length and then iterate over each object in the array.
             throw new Error(`expected ${expectedCode} received ${resp.statusCode} - ${resp.method} ${resp.path}: ${resp.data.message}`);
         }
     } catch (err) {
