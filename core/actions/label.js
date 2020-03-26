@@ -45,8 +45,8 @@ async function createLabel(repoOwner, repoName, labelName) {
 
         let resp = await request.post(opts, payload);
 
-        return await request.handleRest(200, resp);
-        
+        return await request.handleRest(201, resp);
+
     } catch (err) {
         throw new Error(err.stack);
     }
