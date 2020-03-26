@@ -19,10 +19,49 @@ async function getAllLabels(repoOwner, repoName) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
-        throw new Error (err.stack);
+        throw new Error(err.stack);
     }
 }
 
+/**
+ * Creates a new label with a random color.
+ * 
+ * @param {string} repoOwner owner of the repo to add a label to
+ * @param {string} repoName name of the repo to add a label to
+ * @param {string} labelName the name of the label to create
+ */
+async function createLabel(repoOwner, repoName, labelName) {
+    try {
+        let color = randomColor();
+
+        let opts = {
+            path: `/repos/${repoOwner}/${repoName}/labels`
+        }
+
+        let payload = {
+            name: labelName,
+            color: color
+        }
+
+        let resp = await request.post(opts, payload);
+
+        return await request.handleRest(200, resp);
+        
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Generates a random color.
+ * 
+ * @returns {string} hex descibing a color
+ */
+function randomColor() {
+    return Math.random(16777215).toString(16);
+}
+
 module.exports = {
-    getAllLabels
+    getAllLabels,
+    createLabel
 }
