@@ -58,7 +58,7 @@ async function createLabel(repoOwner, repoName, labelName) {
  * @returns {string} hex descibing a color
  */
 function randomColor() {
-    return Math.random(16777215).toString(16);
+    return Math.floor(Math.random() * Math.floor(16777215)).toString(16);
 }
 
 module.exports = {
