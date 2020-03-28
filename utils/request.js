@@ -164,9 +164,40 @@ async function handleRest(expectedCode, resp) {
     }
 }
 
+/**
+ * Determines if the response from the GraphQL api was successsful 
+ * or not. If not, formats the error message based on the data recieved
+ * from the response.
+ * 
+ * @param {Object} resp the response object from the post method above
+ */
+async function handleQL(resp) {
+    try {
+        if (resp.statusCode !== 200) {
+            // error with request
+            // TODO: need to better format this
+            throw new Error(`ecpected 200 recieved ${resp.statusCode} - ${resp.method} ${resp.path}: ${resp.data.message}`)
+        } else if (Object.keys(resp.data).indexOf("errors") !== -1) {
+            // error on github interpreting our request
+            let errMessages = [];
+
+            for (err of resp.data.errors) {
+                errMessages.push(err.message)
+            }
+
+            throw new Error(errMessages.join(" - "));
+        } else {
+            return resp.data;
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     get,
     post,
     del,
-    handleRest
+    handleRest,
+    handleQL
 }
