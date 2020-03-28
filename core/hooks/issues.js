@@ -1,3 +1,4 @@
+const issue = require('../states/issue');
 
 /**
  * Figures out which action is needed based on the github issue webook
@@ -14,7 +15,8 @@ async function issues(data) {
         }
 
         switch (data.action) {
-            
+            case 'labeled':
+                return await issue.issueLabeled(data);
         }
     } catch (err) {
         throw err;
