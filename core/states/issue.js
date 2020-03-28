@@ -166,8 +166,24 @@ async function matchLabel(labelName, labels, type) {
     }
 }
 
+/**
+ * If the label added is a 'stage' label, moves the project card
+ * and all of the associated project cards to the proper project
+ * column.
+ * 
+ * @param {Object} data webhook payload
+ */
+async function issueLabeled(data) {
+    try {
+
+    } catch (err) { 
+
+    }
+}
+
 module.exports = {
     issueAddedToProject,
     issueRemovedFromProject,
-    projectCardConverted
+    projectCardConverted,
+    issueLabeled
 }
