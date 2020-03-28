@@ -81,8 +81,68 @@ async function removeLabel(issue, label, repoOwner, repoName) {
     }
 }
 
+/**
+ * Gets all of the project cards associated to the issue. Also gets
+ * all of the project columns in each project card's corresponding 
+ * project.
+ * 
+ * @param {int} issueNumber github issue number 
+ * @param {String} repoOwner Github login of the owner of the repository
+ * @param {String} repoName name of the repository
+ */
+async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
+    try {
+
+        let options = {
+            path: `/graphql`
+        }
+
+        let payload = {
+            query: `query {
+                repository(owner:"${repoOwner}", name:"${repoName}") {
+                    issue(number:${issueNumber}) {
+                        title
+                        projectCards {
+                            edges{
+                                node {
+                                    id
+                                    column {
+                                        id
+                                        name
+                                    }
+                                    project {
+                                        id
+                                        name
+                                        state
+                                        columns(first: 20){
+                                            edges {
+                                                node{
+                                                    id
+                                                    name
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }`
+        }
+
+        let resp = await request.post(options, payload);
+
+        return await request.handleQL(resp);
+
+    } catch(err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     getIssue,
     addLabels,
-    removeLabel
+    removeLabel,
+    getIssueProjectCards
 }
