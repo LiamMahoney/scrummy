@@ -13,7 +13,7 @@ async function moveProjectCard(cardID, columnID) {
         }
 
         let payload = {
-            mutation: `mutation {
+            query: `mutation {
                 moveProjectCard(input:{cardId: "${cardID}", columnId: "${columnID}"}) {
                   cardEdge {
                     node {
@@ -24,11 +24,10 @@ async function moveProjectCard(cardID, columnID) {
                     }
                   }
                 }
-              }
-            `
+              }`
         }
 
-        let resp = request.post(options, payload);
+        let resp = await request.post(options, payload);
 
         return await request.handleQL(resp);
 
