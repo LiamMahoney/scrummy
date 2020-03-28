@@ -1,5 +1,5 @@
 const { log } = require('../utils/log');
-const { project, milestone, projectCard } = require('./hooks');
+const { project, milestone, projectCard, issues } = require('./hooks');
 
 /**
  * The main controller of the program. This function decides
@@ -20,6 +20,8 @@ async function determineHook(type, data) {
                 return await milestone(data);
             case 'project_card':
                 return await projectCard(data);
+            case 'issues':
+                return await issues(data);
         }
     } catch (err) {
         throw err;
