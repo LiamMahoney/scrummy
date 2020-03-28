@@ -17,6 +17,7 @@ async function issueAddedToProject(data) {
 
             let [issue, labelToAdd] = await Promise.all(proms);
 
+            // adding project label
             let resp = await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
 
             // getting the labels that were added from the response to form the return statement (what is logged)
@@ -49,6 +50,7 @@ async function issueRemovedFromProject(data) {
 
             let [issue, labelToRemove] = await Promise.all(proms);
 
+            // removing project label
             let resp = await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
 
             return `removed label '${labelToRemove.name}' from issue #${issue.number}`;
@@ -74,6 +76,7 @@ async function projectCardConverted(data) {
 
         let [issue, projectLabel, stageLabel] = await Promise.all(proms);
 
+        // adding stage label and project label to the issue
         let resp = await Issue.addLabels(issue.number, [projectLabel.name, stageLabel.name], data.repository.owner.login, data.repository.name);
         
         // getting the labels that were added from the response to form the return statement (what is logged)
@@ -140,7 +143,7 @@ async function findStageLabel(data) {
 }
 
 /**
- * Finds a matching `project: <project>` label for the 
+ * Finds a matching `type: <value>` label for the 
  * project name passed in.
  * 
  * @param {string} labelName 2nd part of the github label to match to
