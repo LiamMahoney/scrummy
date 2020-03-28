@@ -46,7 +46,7 @@ async function scrummy(type, data) {
         } else if (typeof resp === 'undefined') {
             // do nothing
         } else {
-            log.warn(`scrummy ended with a message of type ${typeof resp}: ${resp}`);
+            log.warn(`received a message of type ${typeof resp}: ${resp}`);
         }
     } catch (err) {
         log.error(err.stack);
