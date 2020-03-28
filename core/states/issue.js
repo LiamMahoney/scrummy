@@ -199,6 +199,7 @@ async function stageLabelAddedToIssue(data) {
         let proms = [];
 
         proms.push(removeOldStageLabel(data.label.name, data.issue.labels, data.issue.number, data.repository.owner.login, data.repository.name));
+        proms.push(moveAllIssueProjectCards(data.label.name, data.issue.number, data.repository.owner.login, data.repository.name));
 
         return await Promise.all(proms);
 
@@ -233,6 +234,97 @@ async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner,
         //TODO: should this be an error or not?
         return `old 'stage' label not found in issue #${issue}`;
     } catch(err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * 
+ * 
+ * @param {String} newStageLabel the new stage label that was added 
+ * @param {int} issueNumber Github issue number 
+ * @param {String} repoOwner Github login of the owner of the repo
+ * @param {String} repoName name of the repository
+ */
+async function moveAllIssueProjectCards(newStageLabel, issueNumber, repoOwner, repoName) {
+    try {
+        let issueCards = await Issue.getIssueProjectCards(issueNumber, repoOwner, repoName);
+
+        let stage = newStageLabel.substr(newStageLabel.indexOf(":") + 1).trim().toLowerCase();
+
+        let proms = [];
+
+        for (projectCard of issueCards.data.repository.issue.projectCards.edges) {
+            // only moving project cards in projects that are open
+            if (projectCard.node.project.state === "OPEN") {
+                proms.push(moveIssueProjectCard(stage, projectCard.node));
+            }
+        }
+
+        return await Promise.all(proms);
+    } catch(err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Moves the project card to the correct column/stage.
+ * 
+ * @param {String} stage the name of the stage to move the project card to
+ * @param {Object} projectCard an object representing a project card from the method Issue.getIssueProjectCards
+ */
+async function moveIssueProjectCard(stage, projectCard) {
+    try {
+        if (await isProjectCardInRightColumn(stage, projectCard.column.name)) {
+            return `projectCard '${projectCard.id}' is already in the correct column '${stage}'`;
+        } else {
+            let columnID = await findProjColumnFromStageName(stage, projectCard.project.columns.edges, projectCard.project.name);
+
+            await ProjectCard.moveProjectCard(projectCard.id, columnID);
+
+            return `moved project card ${projectCard.id} to column '${stage}' in project '${projectCard.project.name}'`;
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Determines if the project card is already in the column passed into the function.
+ * 
+ * @param {String} stage the name of the stage/column to check if the project card is in
+ * @param {String} projectCardStage the name of the stage/column the project card is in
+ */
+async function isProjectCardInRightColumn(stage, projectCardStage) {
+    try {
+        if (stage.toLowerCase().trim() === projectCardStage.toLowerCase().trim()) {
+            return true
+        } else {
+            return false
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Finds the column ID for the column with the name specified
+ * in the parameters. 
+ * 
+ * @param {String} stage the name of the stage to find the ID of
+ * @param {Array} columns list of project columns in a project
+ * @param {String} project the name of the project to look in
+ */
+async function findProjColumnFromStageName(stage, columns, project) {
+    try {
+        for (column of columns) {
+            if (column.node.name.trim().toLowerCase() === stage) {
+                return column.node.id;
+            }
+        }
+
+        throw new Error(`didn't find a column with the name ${stage} in the project ${project}`);
+    } catch (err) {
         throw new Error(err.stack);
     }
 }
