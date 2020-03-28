@@ -167,17 +167,70 @@ async function matchLabel(labelName, labels, type) {
 }
 
 /**
- * If the label added is a 'stage' label, moves the project card
- * and all of the associated project cards to the proper project
- * column.
+ * Determines action to be done based on what type of 
+ * label was added to the issue.
  * 
  * @param {Object} data webhook payload
  */
 async function issueLabeled(data) {
     try {
+        let labelType = data.label.name.substr(0, data.label.name.indexOf(":")).toLowerCase();
 
+        switch(labelType) {
+            case 'stage':
+                return await stageLabelAddedToIssue(data);
+        }
     } catch (err) { 
+        throw new Error(err.stack);
+    }
+}
 
+/**
+ * Moves all of the issue's associated project cards to
+ * the proper column and removes the old stage label.
+ * 
+ * @param {Object} data webhook payload
+ */
+async function stageLabelAddedToIssue(data) {
+    try {
+        let proms = [];
+
+        proms.push(removeOldStageLabel(data.label.name, data.issue.labels, data.issue.number, data.repository.owner.login, data.repository.name));
+
+        return await Promise.all(proms);
+
+    } catch(err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Removes the old stage label from the issue.
+ * 
+ * @param {String} newStageLabel the new stage label that was added 
+ * @param {Array} issueLabels list of objects representing the labels the issue is labeled with
+ * @param {int} issue Github issue number
+ * @param {String} repoOwner GitHub login of the owner of the repo
+ * @param {String} repoName name of the respository
+ */
+async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner, repoName) {
+    try {
+        for (label of issueLabels) {
+            // boolean whether or not label starts with stage
+            let isStageLabel = label.name.substr(0, label.name.indexOf(":")).toLowerCase() === "stage";
+
+            // finding the old stage label
+            if (isStageLabel && label.name !== newStageLabel) {
+                await Issue.removeLabel(issue, label.name, repoOwner, repoName);
+
+                return `removed label '${label.name}' from issue #${issue}`;
+            }
+        }
+
+        //TODO: should this be an error or not?
+        return `old 'stage' label not found in issue #${issue}`;
+    } catch(err) {
+        throw new Error(err.stack);
     }
 }
 
