@@ -345,5 +345,6 @@ module.exports = {
     issueAddedToProject,
     issueRemovedFromProject,
     projectCardConverted,
-    issueLabeled
+    issueLabeled,
+    projectCardMoved
 }
