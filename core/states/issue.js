@@ -330,6 +330,12 @@ async function findProjColumnFromStageName(stage, columns, project) {
 }
 
 /**
+ * Checks if the stage label on the projet card's issue matches
+ * the column the project card was moved to. If it doesn't then
+ * gets the proper stage label for the column and adds it 
+ * to the project card's issue. Adding the stage label will take
+ * care of moving teh rest of the issue's proejct cards and 
+ * removing the old stage label on the issue.
  * 
  * @param {Object} data project card webhook payload
  */
@@ -342,18 +348,7 @@ async function projectCardMoved(data) {
 
         let [column, issue] = await Promise.all(proms);
 
-        let stageLabels = await findCurrentLabel(issue.labels, 'stage');
-
-        if (stageLabels.length > 1) {
-            throw new Error(`issue #${issue.number} has multiple stage labels associated to it`);
-        } else if (stageLabels.length === 0) {
-            throw new Error(`issue #${issue.number} doesn't have any stage labels associated to it`);
-        }
-
-        // stageLabels.length === 1
-        let stage = stageLabels[0].substr(stageLabels[0].indexOf(":") + 1).toLowerCase().trim()
-
-        if (! await isProjectCardInRightColumn(column.name, stage)) {
+        if (await projectLabelNeedsToMove(column, issue)) {
             // the stage label that should be added to the project based on the column the project card is in 
             let newStageLabel = await findStageLabel(data);
 
@@ -365,6 +360,36 @@ async function projectCardMoved(data) {
             return `added label '${newStageLabel.name}' to issue #${issue.number}`;
         }
 
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Determines if the project card needs to move by comparing
+ * the stage label on the project card's issue and the column
+ * name the project card was just moved to. If they don't match
+ * then the project card needs to be moved.
+ * 
+ * @param {Object} column GET column response from REST api
+ * @param {Object} issue GET issue response from REST api
+ */
+async function projectLabelNeedsToMove(column, issue) {
+    try {
+        let stageLabels = await findCurrentLabel(issue.labels, 'stage');
+
+        if (stageLabels.length > 1) {
+            throw new Error(`issue #${issue.number} has multiple stage labels associated to it`);
+        } else if (stageLabels.length === 0) {
+            // should return true
+            throw new Error(`issue #${issue.number} doesn't have any stage labels associated to it`);
+        }
+
+        // stageLabels.length === 1
+        let stage = stageLabels[0].substr(stageLabels[0].indexOf(":") + 1).toLowerCase().trim()
+
+        // returning the opposite of whether or not the project card is in the right column
+        return ! await isProjectCardInRightColumn(column.name, stage);
     } catch (err) {
         throw new Error(err.stack);
     }
