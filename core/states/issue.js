@@ -381,8 +381,9 @@ async function projectLabelNeedsToMove(column, issue) {
         if (stageLabels.length > 1) {
             throw new Error(`issue #${issue.number} has multiple stage labels associated to it`);
         } else if (stageLabels.length === 0) {
-            // should return true
-            throw new Error(`issue #${issue.number} doesn't have any stage labels associated to it`);
+            // there is no stage label on the project card's issue so the 
+            // new one should be added
+            return true;
         }
 
         // stageLabels.length === 1
