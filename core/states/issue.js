@@ -117,7 +117,7 @@ async function findProjectLabel(data) {
 }
 
 /**
- * Finds the matching `project: <project>` for the project
+ * Finds the matching `stage: <stage>` for the project
  * the project card (instance of issue) was just added to
  * or removed from.
  * 
@@ -335,7 +335,59 @@ async function findProjColumnFromStageName(stage, columns, project) {
  */
 async function projectCardMoved(data) {
     try {
-        console.log('not implemented yet');
+        let proms = [];
+
+        proms.push(Project.getColumn(data.project_card.column_url));
+        proms.push(Project.getProject(data.project_card.content_url));
+
+        let [column, issue] = await Promise.all(proms);
+
+        let stageLabels = await findCurrentLabel(issue.labels, 'stage');
+
+        if (stageLabels.length > 1) {
+            throw new Error(`issue #${issue.number} has multiple stage labels associated to it`);
+        } else if (stageLabels.length === 0) {
+            throw new Error(`issue #${issue.number} doesn't have any stage labels associated to it`);
+        }
+
+        // stageLabels.length === 1
+        let stage = stageLabels[0].substr(stageLabels[0].indexOf(":") + 1).toLowerCase().trim()
+
+        if (! await isProjectCardInRightColumn(column.name, stage)) {
+            // the stage label that should be added to the project based on the column the project card is in 
+            let newStageLabel = await findStageLabel(data);
+
+            // adding the proper stage label to the project card's associated issue - this will
+            // trigger the stage label added to issue which will move the rest of the project cards
+            // and remove the old stage: <stage> label from the issue.
+            await Issue.addLabels(issue.number, [newStageLabel.name], data.repository.owner.login, data.repository.name);
+
+            return `added label '${newStageLabel.name}' to issue #${issue.number}`;
+        }
+
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Returns any labels that match the type.
+ * 
+ * @param {Array} labels list of objects that represent labels
+ * @param {String} type the type of label to look for [stage, project]
+ */
+async function findCurrentLabel(labels, type) {
+    try {
+        // holds labels that match the type
+        matching = [];
+
+        for (label of labels) {
+            if (label.name.indexOf(type.toLowerCase().trim()) !== -1) {
+                matching.push(label.name);
+            }
+        }
+
+        return matching
     } catch (err) {
         throw new Error(err.stack);
     }
