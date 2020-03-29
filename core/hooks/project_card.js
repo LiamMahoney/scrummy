@@ -18,6 +18,7 @@ async function projectCard(data) {
                 return await Issue.projectCardConverted(data);
             case 'moved':
                 // issue is moved in project
+                return await Issue.projectCardMoved(data);
         }   
     } catch (err) {
         throw new Error(err.stack);
