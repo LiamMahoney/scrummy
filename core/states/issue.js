@@ -329,6 +329,18 @@ async function findProjColumnFromStageName(stage, columns, project) {
     }
 }
 
+/**
+ * 
+ * @param {Object} data project card webhook payload
+ */
+async function projectCardMoved(data) {
+    try {
+        console.log('not implemented yet');
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     issueAddedToProject,
     issueRemovedFromProject,
