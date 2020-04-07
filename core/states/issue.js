@@ -139,12 +139,12 @@ async function findStageLabel(data) {
  * Finds a matching `type: <value>` label for the 
  * project name passed in.
  * 
- * @param {string} value 2nd part of the github label to match to
+ * @param {string} type the type of label to match, first part of the label
+ * @param {string} value the value of the label to match, second part of the github label
  * @param {Object} labels actions.Label.getAllLabels() response
- * @param {string} type the type of label to match, could be 'project' or 'stage'
  * @returns {Object} matching `project: <project>` label name/id
  */
-async function matchLabel(value, labels, type) {
+async function matchLabel(type, value, labels) {
     try {
         //TODO: should the first 3 lines of findStageLabel and findProjectLabel be placed here? Would
         // replace this function's parameters with type, columnURL, repoOwner, and repo.
