@@ -20,13 +20,7 @@ async function issueAddedToProject(data) {
             // adding project label
             let resp = await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
 
-            // getting the labels that were added from the response to form the return statement (what is logged)
-            labelsAdded = [];
-            for (label of resp) {
-                labelsAdded.push(label.name);
-            }
-
-            return `added label(s) [${labelsAdded.join(', ')}] to issue #${issue.number}`;
+            return `added label ${labelToAdd} to issue #${issue.number}`;
         }
     } catch (err) {
         throw new Error(err.stack);
@@ -118,8 +112,7 @@ async function findProjectLabel(data) {
 
 /**
  * Finds the matching `stage: <stage>` for the project
- * the project card (instance of issue) was just added to
- * or removed from.
+ * the project card (instance of issue) is currently in.
  * 
  * FIXME: if I create a general 'get url' request (rather than having 2 identical methods in Project.getProject and Project.getColumn) then I can combine this method and the findProjectLabel method.
  * 
@@ -146,15 +139,18 @@ async function findStageLabel(data) {
  * Finds a matching `type: <value>` label for the 
  * project name passed in.
  * 
- * @param {string} labelName 2nd part of the github label to match to
+ * @param {string} value 2nd part of the github label to match to
  * @param {Object} labels actions.Label.getAllLabels() response
  * @param {string} type the type of label to match, could be 'project' or 'stage'
  * @returns {Object} matching `project: <project>` label name/id
  */
-async function matchLabel(labelName, labels, type) {
+async function matchLabel(value, labels, type) {
     try {
+        //TODO: should the first 3 lines of findStageLabel and findProjectLabel be placed here? Would
+        // replace this function's parameters with type, columnURL, repoOwner, and repo.
+
         for (label of labels) {
-            if (label.name.replace(type, '').trim().toLowerCase() === labelName.toLowerCase()) {
+            if (label.name.replace(type, '').trim().toLowerCase() === value.toLowerCase()) {
                 return {
                     name: label.name,
                     id: label.id
@@ -162,7 +158,7 @@ async function matchLabel(labelName, labels, type) {
             }
         }
 
-        throw new Error(`'${type} <${type}>' label not found for ${type} '${labelName}'`);
+        throw new Error(`'${type} <${type}>' label not found for ${type} '${value}'`);
 
     } catch (err) {
         throw new Error(err.stack);
