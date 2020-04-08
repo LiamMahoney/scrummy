@@ -18,9 +18,7 @@ async function issueAddedToProject(data) {
             let [issue, labelToAdd] = await Promise.all(proms);
 
             // adding project label
-            let resp = await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
-
-            return `added label ${labelToAdd} to issue #${issue.number}`;
+            return await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
         }
     } catch (err) {
         throw new Error(err.stack);
@@ -45,9 +43,7 @@ async function issueRemovedFromProject(data) {
             let [issue, labelToRemove] = await Promise.all(proms);
 
             // removing project label
-            let resp = await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
-
-            return `removed label '${labelToRemove.name}' from issue #${issue.number}`;
+            return await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
         }
     } catch (err) {
         throw new Error(err.stack);
@@ -71,15 +67,7 @@ async function projectCardConverted(data) {
         let [issue, projectLabel, stageLabel] = await Promise.all(proms);
 
         // adding stage label and project label to the issue
-        let resp = await Issue.addLabels(issue.number, [projectLabel.name, stageLabel.name], data.repository.owner.login, data.repository.name);
-        
-        // getting the labels that were added from the response to form the return statement (what is logged)
-        labelsAdded = [];
-        for (label of resp) {
-            labelsAdded.push(label.name);
-        }
-
-        return `added label(s) [${labelsAdded.join(', ')}] to issue #${issue.number}`;
+        return await Issue.addLabels(issue.number, [projectLabel.name, stageLabel.name], data.repository.owner.login, data.repository.name);
 
     } catch (err) {
         throw new Error(err.stack);
@@ -221,9 +209,7 @@ async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner,
 
             // finding the old stage label
             if (isStageLabel && label.name !== newStageLabel) {
-                await Issue.removeLabel(issue, label.name, repoOwner, repoName);
-
-                return `removed label '${label.name}' from issue #${issue}`;
+                return await Issue.removeLabel(issue, label.name, repoOwner, repoName);
             }
         }
 
@@ -351,9 +337,7 @@ async function projectCardMoved(data) {
             // adding the proper stage label to the project card's associated issue - this will
             // trigger the stage label added to issue which will move the rest of the project cards
             // and remove the old stage: <stage> label from the issue.
-            await Issue.addLabels(issue.number, [newStageLabel.name], data.repository.owner.login, data.repository.name);
-
-            return `added label '${newStageLabel.name}' to issue #${issue.number}`;
+            return await Issue.addLabels(issue.number, [newStageLabel.name], data.repository.owner.login, data.repository.name);
         }
 
     } catch (err) {
