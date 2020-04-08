@@ -46,7 +46,9 @@ async function addLabels(issue, labels, repoOwner, repoName) {
 
         let resp = await request.post(options, payload);
 
-        return await request.handleRest(200, resp);
+        await request.handleRest(200, resp);
+
+        return `added ${labels.join(', ')} to issue #${issue}`;
 
     } catch (err) {
 
@@ -72,7 +74,9 @@ async function removeLabel(issue, label, repoOwner, repoName) {
 
         let resp = await request.del(options);
 
-        return await request.handleRest(200, resp);
+        await request.handleRest(200, resp);
+
+        return `removed ${label} from issue #${issue}`;
 
     } catch (err) {
 
