@@ -103,7 +103,7 @@ async function findProjectLabel(data) {
 
         let [labels, project] = await Promise.all(proms);
 
-        return await matchLabel(project.name, labels, 'project:');
+        return await matchLabel('project:', project.name, labels);
 
     } catch (err) {
         throw new Error(err.stack);
@@ -128,7 +128,7 @@ async function findStageLabel(data) {
 
         let [labels, column] = await Promise.all(proms);
 
-        return await matchLabel(column.name, labels, 'stage:');
+        return await matchLabel('stage:', column.name, labels);
 
     } catch (err) {
         throw new Error(err.stack);
