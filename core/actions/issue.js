@@ -32,6 +32,7 @@ async function getIssue(issURL) {
  * @param {Array} labels label name strings to add e.g. ['duplicate', 'bug']
  * @param {String} repoOwner Github login of the owner of the repo
  * @param {String} repoName name of the repository
+ * @returns {String} contains which labels were added to which issue
  */
 async function addLabels(issue, labels, repoOwner, repoName) {
     try {
@@ -64,6 +65,7 @@ async function addLabels(issue, labels, repoOwner, repoName) {
  * @param {String} label label name
  * @param {String} repoOwner Github login of the owner of the repo
  * @param {String} repoName name of the repository
+ * @returns {String} contains which label was removed from which issue
  */
 async function removeLabel(issue, label, repoOwner, repoName) {
     try {
