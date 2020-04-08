@@ -2,7 +2,8 @@ const { Label, Issue, Project, ProjectCard } = require('../actions');
 
 /**
  * Adds the matching `project: <project>` label that the 
- * issue was just added to.
+ * issue was just added to and moves the project card
+ * to the proper column, if needed.
  * 
  * @param {Object} data webhook payload
  */
@@ -17,9 +18,74 @@ async function issueAddedToProject(data) {
 
             let [issue, labelToAdd] = await Promise.all(proms);
 
+            proms = [];
+
             // adding project label
-            return await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name);
+            proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
+            // moving project card, if needed
+            proms.push(findNewProjectCardStage(issue, data.project_card.project_url));
+
+            return await Promise.all(proms);
         }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Finds the stage the new project card should be in based on whether
+ * or not the project card's issue already has a stage label.
+ * 
+ * @param {Object} issue response from issue.getIssue()
+ * @param {String} projectURL http url for a GET project details request
+ */
+async function findNewProjectCardStage(issue, projectURL) {
+    try {
+        let stageLabels = await findCurrentLabel(issue.labels, "stage");
+
+        if (stageLabels.length === 1) {
+            // issue already has a stage label
+            return await moveProjectToIssuesStage(stageLabels[0], projectURL, issue.number);
+        } else if (stageLabels.length === 0) {
+            // issue doesn't have any stage labels
+            //TODO:
+        } else {
+            // issue has multiple stage labels - this should never happen
+            throw new Error(`Found the following stage labels on issue #${issue.number}: [${stageLabels.join(', ')}]`);
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Moves the project card to the column in the project that matches the given
+ * stage label.
+ * 
+ * @param {String} stageLabel stage label to find a column of
+ * @param {String} projectURL http url for a GET project details request
+ * @param {int} issueNumber the project card's associated issue number
+ * @returns {String} statement to log describing which column the project card was moved to
+ */
+async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber) {
+    try {
+
+        let project = await Project.getProject(projectURL);
+        let columns = await Project.getColumn(project.columns_url); //FIXME: misusing this function....
+
+        for (column of columns) {
+            // looking for column part of stage label - stage: <column>
+            let stage = stageLabels[0].substr(stageLabels[0].indexOf(':') + 1).trim().toLowerCase();
+
+            if (stage === column.name.toLowerCase().trim()) {
+                // found column to move project card to
+                await ProjectCard.moveProjectCard(projectCard.id, columnID);
+
+                return `moved project card for #${issueNumber} in ${project.name} to column.name`;
+            }
+        }
+
+        throw new Error(`Couldn't find column matching the label '${stageLabel}' in the project '${project.name}'. Can't move the project card for issue #${issueNumber} in the project.`);
     } catch (err) {
         throw new Error(err.stack);
     }
