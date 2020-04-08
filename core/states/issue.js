@@ -344,7 +344,7 @@ async function projectCardMoved(data) {
 
         let [column, issue] = await Promise.all(proms);
 
-        if (await projectLabelNeedsToMove(column, issue)) {
+        if (await projectCardNeedsToMove(column, issue)) {
             // the stage label that should be added to the project based on the column the project card is in 
             let newStageLabel = await findStageLabel(data);
 
@@ -370,7 +370,7 @@ async function projectCardMoved(data) {
  * @param {Object} column GET column response from REST api
  * @param {Object} issue GET issue response from REST api
  */
-async function projectLabelNeedsToMove(column, issue) {
+async function projectCardNeedsToMove(column, issue) {
     try {
         let stageLabels = await findCurrentLabel(issue.labels, 'stage');
 
