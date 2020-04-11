@@ -23,7 +23,7 @@ async function issueAddedToProject(data) {
             // adding project label
             proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
             // moving project card, if needed
-            proms.push(findNewProjectCardStage(issue, data.project_card.project_url));
+            proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
 
             return await Promise.all(proms);
         }
@@ -37,18 +37,27 @@ async function issueAddedToProject(data) {
  * or not the project card's issue already has a stage label.
  * 
  * @param {Object} issue response from issue.getIssue()
- * @param {String} projectURL http url for a GET project details request
+ * @param {String} projectCardID the node ID of a project card
+ * @param {String} projectURL API GET URL for a project
+ * @param {String} columnURL API GET URL for a column
+ * @param {String} repoOwner the owner of the repository to look in
+ * @param {String} repoName the name of the reposiotory to look in
+ * 
  */
-async function findNewProjectCardStage(issue, projectURL) {
+async function findNewProjectCardStage(issue, projectCardID, projectURL, columnURL, repoOwner, repoName) {
     try {
         let stageLabels = await findCurrentLabel(issue.labels, "stage");
 
         if (stageLabels.length === 1) {
-            // issue already has a stage label
-            return await moveProjectToIssuesStage(stageLabels[0], projectURL, issue.number);
+            // issue already has a stage label, need to move the new project card to the correct column
+            return await moveProjectCardToIssuesStage(stageLabels[0], projectURL, issue.number, projectCardID);
         } else if (stageLabels.length === 0) {
-            // issue doesn't have any stage labels
-            //TODO:
+            // issue doesn't have any stage labels, add the stage label the proect card is in
+            
+            // appropriate stage label to add based on the column the project card is in
+            let label = await findStageLabel(columnURL, repoOwner, repoName);
+
+            return await Issue.addLabels(issue.number, [label.name], repoOwner, repoName);
         } else {
             // issue has multiple stage labels - this should never happen
             throw new Error(`Found the following stage labels on issue #${issue.number}: [${stageLabels.join(', ')}]`);
@@ -65,9 +74,10 @@ async function findNewProjectCardStage(issue, projectURL) {
  * @param {String} stageLabel stage label to find a column of
  * @param {String} projectURL http url for a GET project details request
  * @param {int} issueNumber the project card's associated issue number
+ * @param {String} projectCardID the node ID of a project card
  * @returns {String} statement to log describing which column the project card was moved to
  */
-async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber) {
+async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber, projectCardID) {
     try {
 
         let project = await Project.getProject(projectURL);
@@ -75,11 +85,11 @@ async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber)
 
         for (column of columns) {
             // looking for column part of stage label - stage: <column>
-            let stage = stageLabels[0].substr(stageLabels[0].indexOf(':') + 1).trim().toLowerCase();
+            let stage = stageLabel.substr(stageLabel.indexOf(':') + 1).trim().toLowerCase();
 
             if (stage === column.name.toLowerCase().trim()) {
                 // found column to move project card to
-                await ProjectCard.moveProjectCard(projectCard.id, columnID);
+                await ProjectCard.moveProjectCard(projectCardID, column.node_id);
 
                 return `moved project card for #${issueNumber} in ${project.name} to column.name`;
             }
@@ -128,7 +138,7 @@ async function projectCardConverted(data) {
         let proms = [];
         proms.push(Issue.getIssue(data.project_card.content_url));
         proms.push(findProjectLabel(data));
-        proms.push(findStageLabel(data));
+        proms.push(findStageLabel(data.project_card.column_url, data.repository.owner.login, data.repository.name));
 
         let [issue, projectLabel, stageLabel] = await Promise.all(proms);
 
@@ -170,15 +180,17 @@ async function findProjectLabel(data) {
  * 
  * FIXME: if I create a general 'get url' request (rather than having 2 identical methods in Project.getProject and Project.getColumn) then I can combine this method and the findProjectLabel method.
  * 
- * @param {Object} data webhook payload
+ * @param {String} columnURL API GET column URL
+ * @param {String} repoOwner the owner of the repository to look in
+ * @param {String} repoName the name of the repository to look in
  * @returns {Object} describes the matching project label
  * to add or remove with name and id keys
  */
-async function findStageLabel(data) {
+async function findStageLabel(columnURL, repoOwner, repoName) {
     try {
         proms = [];
-        proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
-        proms.push(Project.getColumn(data.project_card.column_url));
+        proms.push(Label.getAllLabels(repoOwner, repoName));
+        proms.push(Project.getColumn(columnURL));
 
         let [labels, column] = await Promise.all(proms);
 
@@ -232,6 +244,8 @@ async function issueLabeled(data) {
         switch(labelType) {
             case 'stage':
                 return await stageLabelAddedToIssue(data);
+            case 'project':
+                return await projectLabelAddedToIssue(data);
         }
     } catch (err) { 
         throw new Error(err.stack);
@@ -378,6 +392,18 @@ async function findProjColumnFromStageName(stage, columns, project) {
 }
 
 /**
+ * 
+ * @param {Object} data issue webhook payload 
+ */
+async function projectLabelAddedToIssue(data) {
+    try {
+
+    } catch (err) { 
+        throw new Error(err.stack);
+    }
+}
+
+/**
  * Checks if the stage label on the projet card's issue matches
  * the column the project card was moved to. If it doesn't then
  * gets the proper stage label for the column and adds it 
@@ -398,7 +424,7 @@ async function projectCardMoved(data) {
 
         if (await projectCardNeedsToMove(column, issue)) {
             // the stage label that should be added to the project based on the column the project card is in 
-            let newStageLabel = await findStageLabel(data);
+            let newStageLabel = await findStageLabel(data.project_card.column_url, data.repository.owner.login, data.repository.name);
 
             // adding the proper stage label to the project card's associated issue - this will
             // trigger the stage label added to issue which will move the rest of the project cards
