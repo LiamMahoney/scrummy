@@ -66,7 +66,7 @@ async function getRepoProjects(repoOwner, repoName) {
 
         let resp = await request.get(options);
 
-        return await request.hadnleRest(200, resp);
+        return await request.handleRest(200, resp);
 
     } catch (err) {
         throw new Error(err.stack);
