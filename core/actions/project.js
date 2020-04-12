@@ -73,8 +73,31 @@ async function getRepoProjects(repoOwner, repoName) {
     }
 }
 
+/**
+ * Gets all of the columns in the project.
+ * 
+ * @param {String} URL GET project API URL 
+ */
+async function getProjectColumns(URL) {
+    try {
+        let options = {
+            path: url.parse(URL).path,
+            headers: {
+                "Accept": "application/vnd.github.inertia-preview+json"
+            }
+        }
+
+        let resp = await request.get(options);
+
+        return await request.handleRest(200, resp);
+    } catch(err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     getProject,
     getColumn,
-    getRepoProjects
+    getRepoProjects,
+    getProjectColumns
 }
