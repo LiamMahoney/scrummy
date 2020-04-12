@@ -392,11 +392,33 @@ async function findProjColumnFromStageName(stage, columns, project) {
 }
 
 /**
+ * Creates a project card in the matching project as the 
+ * project: <project> label that was just added to the issue.
  * 
  * @param {Object} data issue webhook payload 
  */
 async function projectLabelAddedToIssue(data) {
     try {
+        let projects = await Project.getRepoProjects(data.repository.owner.login, data.repository.name);
+        
+        // getting the project that was just added to the issue
+        let projectAddedTo = data.label.name.substr(data.label.name.indexOf(":") + 1).trim().toLowerCase();
+
+        // finding project with the same name as the project label that was added to the issue
+        for (project of projects) {
+            if (project.name.toLowerCase().trim() === projectAddedTo) {
+                let columns = await Project.getProjectColumns(project.columns_url);
+
+                for (column of columns) {
+                    //FIXME: think of a better way to identify a project column to add the project card to
+                    if (column.name.trim().toLowerCase() === "to do") {
+                        return await Issue.addIssueToProject(data.issue.number, column.id, data.issue.id, "Issue");
+                    }
+                }
+            }
+        }
+
+        return `couldn't match the label '${data.label.name}' to a project in the repository ${data.repository.name}. Issue #${data.issue.number} was not added to the associated project`;
 
     } catch (err) { 
         throw new Error(err.stack);

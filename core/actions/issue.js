@@ -146,9 +146,42 @@ async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
     }
 }
 
+/**
+ * Adds an issue to a project. 
+ * 
+ * @param {int} issueNumber the number of the issue
+ * @param {String} columnID the ID of the column to add the issue to
+ * @param {String} contentID issue ID to associated with the card
+ * @param {String} contentType describes the contentID, either ['Issue', 'PullRequest']
+ */
+async function addIssueToProject(issueNumber, columnID, contentID, contentType) {
+    try {
+        let options = {
+            path: `/projects/columns/${columnID}/cards`,
+            headers: {
+                "Accept": "application/vnd.github.inertia-preview+json"
+            }
+        }
+
+        let payload = {
+            content_id: contentID,
+            content_type: contentType
+        }
+
+        let resp = await request.post(options, payload);
+
+        await request.handleRest(201, resp);
+
+        return `Added issue #${issueNumber} to the project`;
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     getIssue,
     addLabels,
     removeLabel,
-    getIssueProjectCards
+    getIssueProjectCards,
+    addIssueToProject
 }
