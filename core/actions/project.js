@@ -49,7 +49,32 @@ async function getColumn(columnURL) {
     } 
 }
 
+/**
+ * Gets all of the projects within the repository.
+ * 
+ * @param {String} repoOwner Owner of the repository to look in for projects
+ * @param {String} repoName name of the reposiotyr to look in for projects
+ */
+async function getRepoProjects(repoOwner, repoName) {
+    try {
+        let options = {
+            path: `/repos/${repoOwner}/${repoName}/projects`,
+            headers : {
+                Accept: 'application/vnd.github.inertia-preview+json'
+            }
+        }
+
+        let resp = await request.get(options);
+
+        return await request.hadnleRest(200, resp);
+
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     getProject,
-    getColumn
+    getColumn,
+    getRepoProjects
 }
