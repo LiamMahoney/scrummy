@@ -394,6 +394,7 @@ async function findProjColumnFromStageName(stage, columns, project) {
 /**
  * Creates a project card in the matching project as the 
  * project: <project> label that was just added to the issue.
+ * TODO: configure to work with pull requests
  * 
  * @param {Object} data issue webhook payload 
  */
@@ -513,10 +514,46 @@ async function findCurrentLabel(labels, type) {
     }
 }
 
+/**
+ * Determines what needs to be done based on the type of label
+ * that was removed from the issue.
+ * 
+ * @param {Object} data webhook payload
+ */
+async function issueUnlabeled(data) {
+    try {
+        let labelType = data.label.name.substr(0, data.label.name.indexOf(":")).toLowerCase();
+
+        switch(labelType) {
+            case 'project':
+                return await stageLabelAddedToIssue(data);
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
+/**
+ * Finds the project card associated to the issue that is in the project 
+ * that matches the project label that was just removed from the issue. 
+ * Removes the matching project from the issue (deletes the project card).
+ * 
+ * @param {Object} data webhook payload
+ */
+async function stageLabelAddedToIssue(data) {
+    try {
+        console.log(data);
+
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     issueAddedToProject,
     issueRemovedFromProject,
     projectCardConverted,
     issueLabeled,
-    projectCardMoved
+    projectCardMoved,
+    issueUnlabeled
 }

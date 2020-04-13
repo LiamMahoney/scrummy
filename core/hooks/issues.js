@@ -17,6 +17,8 @@ async function issues(data) {
         switch (data.action) {
             case 'labeled':
                 return await issue.issueLabeled(data);
+            case 'unlabeled':
+                return await issue.issueUnlabeled(data);
         }
     } catch (err) {
         throw err;
