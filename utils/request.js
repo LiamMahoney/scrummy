@@ -125,8 +125,9 @@ function del(opts) {
             res.on('data', (d) => {
                 data += d;
             }).on('end', function () {
+                //FIXME: check if response is valid JSON
                 return resolve({
-                    data: JSON.parse(data),
+                    data: data? JSON.parse(data) : '',
                     statusCode: this.statusCode,
                     path: this.req.path,
                     method: this.req.method
