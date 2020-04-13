@@ -526,7 +526,7 @@ async function issueUnlabeled(data) {
 
         switch(labelType) {
             case 'project':
-                return await stageLabelAddedToIssue(data);
+                return await projectLabelRemovedFromIssue(data);
         }
     } catch (err) {
         throw new Error(err.stack);
@@ -540,9 +540,24 @@ async function issueUnlabeled(data) {
  * 
  * @param {Object} data webhook payload
  */
-async function stageLabelAddedToIssue(data) {
+async function projectLabelRemovedFromIssue(data) {
     try {
-        console.log(data);
+        // name of the project to remove from the issue from a 'project: <project>' label
+        let projectToRemove = data.label.name.substr(data.label.name.indexOf(':') + 1).trim().toLowerCase();
+
+        let projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+        
+        // searching for project card that matches the label just removed from the issue
+        for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
+            if (projectCard.node.project.name.toLowerCase().trim() === projectToRemove) {
+                await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+
+                return `removed #${data.issue.number} from 'projectCard.node.project.name'`;
+            }
+        }
+
+        // didn't find a project card in the project desired
+        throw new Error(`couldn't find a project card for issue #${data.issue.number} that matches the label '${data.label.name}'`);
 
     } catch (err) {
         throw new Error(err.stack);
