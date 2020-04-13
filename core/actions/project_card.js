@@ -53,7 +53,9 @@ async function deleteProjectCard(cardID) {
         let resp = await request.del(options);
 
         return await request.handleRest(204, resp);
-    } 
+    } catch (err) {
+        throw new Error(err.stack);
+    }
 }
 
 module.exports = {
