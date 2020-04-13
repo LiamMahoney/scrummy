@@ -112,6 +112,7 @@ async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
                             edges{
                                 node {
                                     id
+                                    databaseId
                                     column {
                                         id
                                         name
@@ -120,7 +121,6 @@ async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
                                         id
                                         name
                                         state
-                                        databaseId
                                         columns(first: 20){
                                             edges {
                                                 node{
