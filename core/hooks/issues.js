@@ -19,6 +19,8 @@ async function issues(data) {
                 return await issue.issueLabeled(data);
             case 'unlabeled':
                 return await issue.issueUnlabeled(data);
+            case 'milestoned':
+                return await issue.issueMilestoned(data);
         }
     } catch (err) {
         throw err;
