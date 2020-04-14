@@ -578,6 +578,7 @@ async function issueMilestoned(data) {
 
         let [projects, stageLabels] = await Promise.all(proms);
 
+        // searching for project with the same name as the milestone
         for (project of projects) {
             if (project.name === data.milestone.title) {
                 let columns = await Project.getProjectColumns(project.columns_url);
@@ -587,8 +588,9 @@ async function issueMilestoned(data) {
                     let stage = stageLabels[0].substr(stageLabels[0].indexOf(":") + 1).toLowerCase().trim();
                     for (column of columns) {
                         if (column.name.toLowerCase().trim() === stage) {
-                            // TODO: create project card in the column w/ column.id
                             await Issue.addIssueToProject(data.issue.number, column.id, data.issue.id, "Issue");
+
+                            return `project card for #${issue.number} created in the milestone project ${project.name}`;
                         }
                     }
 
