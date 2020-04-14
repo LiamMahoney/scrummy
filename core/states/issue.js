@@ -564,11 +564,57 @@ async function projectLabelRemovedFromIssue(data) {
     }
 }
 
+/**
+ * Adds the issue to the project board that corresponds to
+ *  the milestone it was just added to.
+ * 
+ * @param {Object} data webhook payload
+ */
+async function issueMilestoned(data) {
+    try {
+        let proms = [];
+        proms.push(Project.getRepoProjects(data.repository.owner.login, data.repository.name));
+        proms.push(findCurrentLabel(data.issue.labels, "stage"));
+
+        let [projects, stageLabels] = await Promise.all(proms);
+
+        for (project of projects) {
+            if (project.name === data.milestone.title) {
+                let columns = await Project.getProjectColumns(project.columns_url);
+
+                if (stageLabels.length === 1) {
+                    // add to stage label
+                    let stage = stageLabels[0].substr(stageLabels[0].indexOf(":") + 1).toLowerCase().trim();
+                    for (column of columns) {
+                        if (column.name.toLowerCase().trim() === stage) {
+                            // TODO: create project card in the column w/ column.id
+                            await Issue.addIssueToProject(data.issue.number, column.id, data.issue.id, "Issue");
+                        }
+                    }
+
+                    throw new Error(`couldn't find column that matches '${stageLabels[0]}' in the project '${project.name}'`);
+                } else if (stageLabels.length === 0) {
+                    // add to todo column? - this should never happen though..
+                    // FIXME: this is giong to have to statically add to the "TODO" column unless I can see what automations are in project columns?
+                    throw new Error(`No stage label found on issue #${data.issue.number} while trying to add it to milestone '${data.milestone.title}' project board`);
+                } else {
+                    // FIXME: should it just error out or add to TODO column in milestone projct?
+                    // multiple stage labels, don't know which to add to.
+                    throw new Error(`#${data.issue.number} has multiple stage labels, unsure which column to put project card in milestone project '${data.milestone.title}'`);
+                }
+            }
+        }
+    } catch (err) {
+        throw new Error(err.stack);
+    }
+}
+
 module.exports = {
     issueAddedToProject,
     issueRemovedFromProject,
     projectCardConverted,
     issueLabeled,
     projectCardMoved,
-    issueUnlabeled
+    issueUnlabeled,
+    issueMilestoned
 }
