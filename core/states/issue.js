@@ -16,6 +16,7 @@ async function issueAddedToProject(data) {
             proms.push(Issue.getIssue(data.project_card.content_url));
             proms.push(findProjectLabel(data));
 
+            // TODO: refactor this so it works with milestone projects (no project label exists)
             let [issue, labelToAdd] = await Promise.all(proms);
 
             proms = [];
@@ -154,6 +155,8 @@ async function projectCardConverted(data) {
  * Finds the matching `project: <project>` for the project
  * the project card (instance of issue) was just added to
  * or removed from.
+ * 
+ * TODO: think of a way to refactor this so it works with milestones. There is no project label for a milestone but I need upstream of this function to continue to work (not get errored out) - going to have to refactor how each of the functions that uses this handles the response
  * 
  * @param {Object} data webhook payload
  * @returns {Object} describes the matching project label
@@ -565,45 +568,26 @@ async function projectLabelRemovedFromIssue(data) {
 }
 
 /**
- * Adds the issue to the project board that corresponds to
- *  the milestone it was just added to.
+ * Adds the issue to the project board that corresponds to the milestone it was
+ * just added to. The project card gets placed in the first (left most) column 
+ * in the project.If the project card needs to be placed in a different column,
+ * it will be handeled by the hook 'project_card' and the action 'created'.
  * 
  * @param {Object} data webhook payload
  */
 async function issueMilestoned(data) {
     try {
-        let proms = [];
-        proms.push(Project.getRepoProjects(data.repository.owner.login, data.repository.name));
-        proms.push(findCurrentLabel(data.issue.labels, "stage"));
-
-        let [projects, stageLabels] = await Promise.all(proms);
+        let projects = await Project.getRepoProjects(data.repository.owner.login, data.repository.name);
 
         // searching for project with the same name as the milestone
         for (project of projects) {
             if (project.name === data.milestone.title) {
                 let columns = await Project.getProjectColumns(project.columns_url);
 
-                if (stageLabels.length === 1) {
-                    // add to stage label
-                    let stage = stageLabels[0].substr(stageLabels[0].indexOf(":") + 1).toLowerCase().trim();
-                    for (column of columns) {
-                        if (column.name.toLowerCase().trim() === stage) {
-                            await Issue.addIssueToProject(data.issue.number, column.id, data.issue.id, "Issue");
+                // adding to left most (first) column in project
+                await Issue.addIssueToProject(data.issue.number, columns[0].id, data.issue.id, "Issue");
 
-                            return `project card for #${issue.number} created in the milestone project ${project.name}`;
-                        }
-                    }
-
-                    throw new Error(`couldn't find column that matches '${stageLabels[0]}' in the project '${project.name}'`);
-                } else if (stageLabels.length === 0) {
-                    // add to todo column? - this should never happen though..
-                    // FIXME: this is giong to have to statically add to the "TODO" column unless I can see what automations are in project columns?
-                    throw new Error(`No stage label found on issue #${data.issue.number} while trying to add it to milestone '${data.milestone.title}' project board`);
-                } else {
-                    // FIXME: should it just error out or add to TODO column in milestone projct?
-                    // multiple stage labels, don't know which to add to.
-                    throw new Error(`#${data.issue.number} has multiple stage labels, unsure which column to put project card in milestone project '${data.milestone.title}'`);
-                }
+                return `project card for #${data.issue.number} created in the milestone project '${project.name}'`;
             }
         }
     } catch (err) {
