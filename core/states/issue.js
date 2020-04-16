@@ -1,4 +1,5 @@
 const { Label, Issue, Project, ProjectCard } = require('../actions');
+const { OutOfState } = require('../../utils/errors');
 
 /**
  * Adds the matching `project: <project>` label that the 
@@ -227,10 +228,10 @@ async function matchLabel(type, value, labels) {
             }
         }
 
-        throw new Error(`'${type} <${type}>' label not found for ${type} '${value}'`);
+        throw new OutOfState(`'${type} <${type}>' label not found for ${type} '${value}'`);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;
     }
 }
 
