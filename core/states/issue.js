@@ -1,5 +1,6 @@
 const { Label, Issue, Project, ProjectCard } = require('../actions');
 const { MissingProjectLabel } = require('../../utils/errors');
+const request = require('../../utils/request');
 
 /**
  * Adds the matching `project: <project>` label that the 
@@ -15,6 +16,9 @@ async function projectCardCreated(data) {
         // checking that the project card is an instance of an issue
         // only project cards that are instances of issues have the content_url field
         if (data.project_card.content_url) {
+            // isProjectMilestone(data.repository.milestones_url, data.project_card.project_url);
+
+            //TODO: use the functions below
             let issue = await Issue.getIssue(data.project_card.content_url);
             let labelToAdd = undefined;
             
@@ -39,6 +43,64 @@ async function projectCardCreated(data) {
 
             return await Promise.all(proms);
         }
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Determines if the project is assosciated to a milestone.
+ *
+ * @param {String} milestonesURL URL to get all of the milestones in the repositoory
+ * @param {String} projectURL URL to get a single project
+ * @returns {Boolean} true if the project is associated to a milestone, false if it is not
+ */
+async function isProjectMilestone(milestonesURL, projectURL) {
+    try {
+        let proms = [];
+
+        proms.push(request.genericGet(milestonesURL));
+        proms.push(request.genericGet(projectURL));
+
+        let [milestones, project] = await Promise.all(proms);
+
+        for (milestone of milestones) {
+            if (milestone.name.trim().toLowerCase() === project.title.toLowerCase().trim()) {
+                // project associated to milestone
+                return true
+            }
+        }
+
+        return false;
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Makes sure the project card was added to the correct column in the 
+ * milestone project.
+ * TODO:
+ * @param
+ */
+async function milestoneProjectCardCreated() {
+    try {
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Adds the appropriate 'project: <project>' label and makes sure the 
+ * project card is in the right column.
+ * TODO:
+ * @param 
+ */
+async function normalProjectCardCreated() {
+    try {
+
     } catch (err) {
         throw err;
     }
