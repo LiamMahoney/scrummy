@@ -1,6 +1,11 @@
 class OutOfState extends Error {
-    constructor(message) {
-        super(message);
+    constructor(message, ...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, OutOfState);
+        }
+
         this.name = 'OutOfState';
     }
 }
