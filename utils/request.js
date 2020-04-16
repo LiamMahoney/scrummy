@@ -1,6 +1,6 @@
 const https = require('https');
 const config = require('../config/config');
-const url = require("url");
+const url = require('url');
 
 /**
  * 
@@ -201,12 +201,12 @@ async function handleQL(resp) {
  * URL to get more information about an object. This function executes that
  * URL and returns the information.
  * 
- * @param {String} url the URL to get
+ * @param {String} fullURL the URL to get
  */
-async function genericGet(url) {
+async function genericGet(fullURL) {
     try {
         options = {
-            path: url.parse(url).path
+            path: url.parse(fullURL).path
         }
 
         let resp = await get(options);
@@ -214,7 +214,31 @@ async function genericGet(url) {
         // making sure request responded with 200
         return await handleRest(200, resp);
     } catch (err) {
+        throw err;
+    }
+}
 
+/**
+ * Executes an API GET request given the url. Often the API responds with a
+ * URL to get more information about an object. This function executes that
+ * URL and returns the information.
+ * 
+ * @param {String} fullURL the URL to get
+ */
+async function genericProjectGet(fullURL) {
+    try {
+        options = {
+            path: url.parse(fullURL),
+            headers: {
+                "Accept": "application/vnd.github.inertia-preview+json"
+            }
+        }
+
+        let resp = await get(options);
+
+        return await handleRest(200, resp);
+    } catch (err) {
+        throw err;
     }
 }
 
