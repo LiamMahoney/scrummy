@@ -9,7 +9,7 @@ async function projectCard(data) {
         switch (data.action) {
             case 'created':
                 // issue added to project or standalone project card created
-                return await Issue.issueAddedToProject(data);
+                return await Issue.projectCardCreated(data);
             case 'deleted':
                 // issue removed from a project or standalone project card deleted
                 return await Issue.issueRemovedFromProject(data);

@@ -6,9 +6,11 @@ const { MissingProjectLabel } = require('../../utils/errors');
  * issue was just added to and moves the project card
  * to the proper column, if needed.
  * 
+ * TODO: not satisfied with how this ended up..
+ * 
  * @param {Object} data webhook payload
  */
-async function issueAddedToProject(data) {
+async function projectCardCreated(data) {
     try {
         // checking that the project card is an instance of an issue
         // only project cards that are instances of issues have the content_url field
@@ -164,8 +166,6 @@ async function projectCardConverted(data) {
  * Finds the matching `project: <project>` for the project
  * the project card (instance of issue) was just added to
  * or removed from.
- * 
- * TODO: think of a way to refactor this so it works with milestones. There is no project label for a milestone but I need upstream of this function to continue to work (not get errored out) - going to have to refactor how each of the functions that uses this handles the response
  * 
  * @param {Object} data webhook payload
  * @returns {Object} describes the matching project label
@@ -605,7 +605,7 @@ async function issueMilestoned(data) {
 }
 
 module.exports = {
-    issueAddedToProject,
+    projectCardCreated,
     issueRemovedFromProject,
     projectCardConverted,
     issueLabeled,
