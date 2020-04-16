@@ -161,7 +161,7 @@ async function handleRest(expectedCode, resp) {
             throw new Error(`expected ${expectedCode} received ${resp.statusCode} - ${resp.method} ${resp.path}: ${resp.data.message}`);
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -191,7 +191,7 @@ async function handleQL(resp) {
             return resp.data;
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 

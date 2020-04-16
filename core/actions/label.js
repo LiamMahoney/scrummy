@@ -19,7 +19,7 @@ async function getAllLabels(repoOwner, repoName) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -48,7 +48,7 @@ async function createLabel(repoOwner, repoName, labelName) {
         return await request.handleRest(201, resp);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 

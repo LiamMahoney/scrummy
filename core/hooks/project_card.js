@@ -21,7 +21,7 @@ async function projectCard(data) {
                 return await Issue.projectCardMoved(data);
         }   
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 

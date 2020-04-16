@@ -21,7 +21,7 @@ async function getProject(projURL) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     } 
 }
 
@@ -45,7 +45,7 @@ async function getColumn(columnURL) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     } 
 }
 
@@ -69,7 +69,7 @@ async function getRepoProjects(repoOwner, repoName) {
         return await request.handleRest(200, resp);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -91,7 +91,7 @@ async function getProjectColumns(URL) {
 
         return await request.handleRest(200, resp);
     } catch(err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 

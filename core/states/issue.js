@@ -30,7 +30,7 @@ async function issueAddedToProject(data) {
             return await Promise.all(proms);
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -65,7 +65,7 @@ async function findNewProjectCardStage(issue, projectCardID, projectURL, columnU
             throw new Error(`Found the following stage labels on issue #${issue.number}: [${stageLabels.join(', ')}]`);
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -99,7 +99,7 @@ async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber,
 
         throw new Error(`Couldn't find column matching the label '${stageLabel}' in the project '${project.name}'. Can't move the project card for issue #${issueNumber} in the project.`);
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -124,7 +124,7 @@ async function issueRemovedFromProject(data) {
             return await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -148,7 +148,7 @@ async function projectCardConverted(data) {
         return await Issue.addLabels(issue.number, [projectLabel.name, stageLabel.name], data.repository.owner.login, data.repository.name);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -174,7 +174,7 @@ async function findProjectLabel(data) {
         return await matchLabel('project:', project.name, labels);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -201,7 +201,7 @@ async function findStageLabel(columnURL, repoOwner, repoName) {
         return await matchLabel('stage:', column.name, labels);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -252,7 +252,7 @@ async function issueLabeled(data) {
                 return await projectLabelAddedToIssue(data);
         }
     } catch (err) { 
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -272,7 +272,7 @@ async function stageLabelAddedToIssue(data) {
         return await Promise.all(proms);
 
     } catch(err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -300,7 +300,7 @@ async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner,
         //TODO: should this be an error or not?
         return `old 'stage' label not found in issue #${issue}`;
     } catch(err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -329,7 +329,7 @@ async function moveAllIssueProjectCards(newStageLabel, issueNumber, repoOwner, r
 
         return await Promise.all(proms);
     } catch(err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -351,7 +351,7 @@ async function moveIssueProjectCard(stage, projectCard) {
             return `moved project card ${projectCard.id} to column '${stage}' in project '${projectCard.project.name}'`;
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -369,7 +369,7 @@ async function isProjectCardInRightColumn(stage, projectCardStage) {
             return false
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -391,7 +391,7 @@ async function findProjColumnFromStageName(stage, columns, project) {
 
         throw new Error(`didn't find a column with the name ${stage} in the project ${project}`);
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -426,7 +426,7 @@ async function projectLabelAddedToIssue(data) {
         return `couldn't match the label '${data.label.name}' to a project in the repository ${data.repository.name}. Issue #${data.issue.number} was not added to the associated project`;
 
     } catch (err) { 
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -460,7 +460,7 @@ async function projectCardMoved(data) {
         }
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -491,7 +491,7 @@ async function projectCardNeedsToMove(column, issue) {
         // returning the opposite of whether or not the project card is in the right column
         return ! await isProjectCardInRightColumn(column.name, stage);
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -514,7 +514,7 @@ async function findCurrentLabel(labels, type) {
 
         return matching
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -533,7 +533,7 @@ async function issueUnlabeled(data) {
                 return await projectLabelRemovedFromIssue(data);
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -564,7 +564,7 @@ async function projectLabelRemovedFromIssue(data) {
         throw new Error(`couldn't find a project card for issue #${data.issue.number} that matches the label '${data.label.name}'`);
 
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
@@ -592,7 +592,7 @@ async function issueMilestoned(data) {
             }
         }
     } catch (err) {
-        throw new Error(err.stack);
+        throw err;;
     }
 }
 
