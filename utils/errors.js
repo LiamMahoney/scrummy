@@ -1,5 +1,5 @@
 class OutOfState extends Error {
-    constructor(message, ...params) {
+    constructor(...params) {
         super(...params);
 
         if (Error.captureStackTrace) {
@@ -10,6 +10,19 @@ class OutOfState extends Error {
     }
 }
 
+class MissingProjectLabel extends OutOfState {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, MissingProjectLabel);
+        }
+
+        this.name = 'MissingProjectLabel';
+    }
+}
+
 module.exports = {
-    OutOfState
+    OutOfState,
+    MissingProjectLabel
 }
