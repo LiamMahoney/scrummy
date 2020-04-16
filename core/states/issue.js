@@ -162,7 +162,7 @@ async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber,
                 // found column to move project card to
                 await ProjectCard.moveProjectCard(projectCardID, column.node_id);
 
-                return `moved project card for #${issueNumber} in ${project.name} to ${column.name}`;
+                return `moved project card for #${issueNumber} in '${project.name}' to column '${column.name}'`;
             }
         }
 
