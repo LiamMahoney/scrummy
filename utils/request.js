@@ -228,7 +228,7 @@ async function genericGet(fullURL) {
 async function genericProjectGet(fullURL) {
     try {
         options = {
-            path: url.parse(fullURL),
+            path: url.parse(fullURL).path,
             headers: {
                 "Accept": "application/vnd.github.inertia-preview+json"
             }
@@ -248,5 +248,6 @@ module.exports = {
     del,
     handleRest,
     handleQL,
-    genericGet
+    genericGet,
+    genericProjectGet
 }
