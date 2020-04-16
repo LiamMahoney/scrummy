@@ -49,7 +49,7 @@ async function addLabels(issue, labels, repoOwner, repoName) {
 
         await request.handleRest(200, resp);
 
-        return `added ${labels.join(', ')} to issue #${issue}`;
+        return `added label(s) [${labels.join(', ')}] to issue #${issue}`;
 
     } catch (err) {
 
@@ -151,11 +151,12 @@ async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
  * Adds an issue to a project. 
  * 
  * @param {int} issueNumber the number of the issue
+ * @param {String} projectName the name of the project to add the issue to
  * @param {String} columnID the ID of the column to add the issue to
  * @param {String} contentID issue ID to associated with the card
  * @param {String} contentType describes the contentID, either ['Issue', 'PullRequest']
  */
-async function addIssueToProject(issueNumber, columnID, contentID, contentType) {
+async function addIssueToProject(issueNumber, projectName, columnID, contentID, contentType) {
     try {
         let options = {
             path: `/projects/columns/${columnID}/cards`,
@@ -173,7 +174,7 @@ async function addIssueToProject(issueNumber, columnID, contentID, contentType) 
 
         await request.handleRest(201, resp);
 
-        return `Added issue #${issueNumber} to the project`;
+        return `Added issue #${issueNumber} to the project '${projectName}'`;
     } catch (err) {
         throw err;
     }
