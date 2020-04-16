@@ -40,7 +40,7 @@ async function isProjectMilestone(milestonesURL, projectURL) {
         let proms = [];
 
         proms.push(request.genericGet(milestonesURL));
-        proms.push(request.genericGet(projectURL));
+        proms.push(request.genericProjectGet(projectURL));
 
         let [milestones, project] = await Promise.all(proms);
 
