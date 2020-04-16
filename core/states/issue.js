@@ -7,8 +7,6 @@ const request = require('../../utils/request');
  * issue was just added to and moves the project card
  * to the proper column, if needed.
  * 
- * TODO: not satisfied with how this ended up..
- * 
  * @param {Object} data webhook payload
  */
 async function projectCardCreated(data) {
@@ -16,32 +14,14 @@ async function projectCardCreated(data) {
         // checking that the project card is an instance of an issue
         // only project cards that are instances of issues have the content_url field
         if (data.project_card.content_url) {
-            // isProjectMilestone(data.repository.milestones_url, data.project_card.project_url);
-
-            //TODO: use the functions below
-            let issue = await Issue.getIssue(data.project_card.content_url);
-            let labelToAdd = undefined;
+            // have to remove '{/number}' from the URL
+            let milestoneURL = data.repository.milestones_url.substr(0, data.repository.milestones_url.indexOf("{/number}"));
             
-            try {
-                labelToAdd = await findProjectLabel(data);
-            } catch (err) {
-                if (err instanceof MissingProjectLabel) {
-                    // project label missing from issue - should be milestone
-                    // TODO: should check if it's a milestone first in this function.. 
-                    return await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name);
-                }
-                throw err;
+            if (milestoneURL, data.project_card.project_url) {
+                return await milestoneProjectCardCreated(data);
+            } else {
+                return await normalProjectCardCreated(data);
             }
-            
-            let proms = [];
-
-            // adding project label if there is one
-            proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
-
-            // moving project card, if needed
-            proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
-
-            return await Promise.all(proms);
         }
     } catch (err) {
         throw err;
@@ -81,12 +61,14 @@ async function isProjectMilestone(milestonesURL, projectURL) {
 /**
  * Makes sure the project card was added to the correct column in the 
  * milestone project.
- * TODO:
- * @param
+ *
+ * @param {Object} data project_card webook
  */
-async function milestoneProjectCardCreated() {
+async function milestoneProjectCardCreated(data) {
     try {
+        let issue = await Issue.getIssue(data.project_card.content_url);
 
+        return await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name);
     } catch (err) {
         throw err;
     }
@@ -95,12 +77,27 @@ async function milestoneProjectCardCreated() {
 /**
  * Adds the appropriate 'project: <project>' label and makes sure the 
  * project card is in the right column.
- * TODO:
- * @param 
+ *
+ * @param {Object} data projet_card webhook
  */
-async function normalProjectCardCreated() {
+async function normalProjectCardCreated(data) {
     try {
+        let proms = [];
 
+        proms.push(Issue.getIssue(data.project_card.content_url));
+        proms.push(findProjectLabel(data));
+       
+        let [issue, labelToAdd] = await Promise.all(proms);
+        
+        proms = [];
+
+        // adding project label if there is one
+        proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
+
+        // moving project card, if needed
+        proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
+
+        return await Promise.all(proms);
     } catch (err) {
         throw err;
     }
