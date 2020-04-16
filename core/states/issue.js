@@ -1,5 +1,5 @@
 const { Label, Issue, Project, ProjectCard } = require('../actions');
-const { OutOfState } = require('../../utils/errors');
+const { MissingProjectLabel } = require('../../utils/errors');
 
 /**
  * Adds the matching `project: <project>` label that the 
@@ -19,15 +19,23 @@ async function issueAddedToProject(data) {
 
             // TODO: refactor this so it works with milestone projects (no project label exists)
             let [issue, labelToAdd] = await Promise.all(proms);
+            
+            let returns = [];
 
-            proms = [];
+            try {
+                // adding project label if there is one
+                returns.push(await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
+            } catch (err) {
+                if (!err instanceof MissingProjectLabel) {
+                    // error other than missing project label, throw it
+                    throw err;
+                }
+            }
 
-            // adding project label
-            proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
             // moving project card, if needed
-            proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
+            returns.push(await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
 
-            return await Promise.all(proms);
+            return returns;
         }
     } catch (err) {
         throw err;
@@ -228,7 +236,7 @@ async function matchLabel(type, value, labels) {
             }
         }
 
-        throw new OutOfState(`'${type} <${type}>' label not found for ${type} '${value}'`);
+        throw new MissingProjectLabel(`'${type} <${type}>' label not found for ${type} '${value}'`);
 
     } catch (err) {
         throw err;
