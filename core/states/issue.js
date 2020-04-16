@@ -45,7 +45,7 @@ async function isProjectMilestone(milestonesURL, projectURL) {
         let [milestones, project] = await Promise.all(proms);
 
         for (milestone of milestones) {
-            if (milestone.name.trim().toLowerCase() === project.title.toLowerCase().trim()) {
+            if (milestone.title.trim().toLowerCase() === project.name.toLowerCase().trim()) {
                 // project associated to milestone
                 return true
             }
