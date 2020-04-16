@@ -484,7 +484,7 @@ async function projectLabelAddedToIssue(data) {
                 for (column of columns) {
                     //FIXME: think of a better way to identify a project column to add the project card to
                     if (column.name.trim().toLowerCase() === "to do") {
-                        return await Issue.addIssueToProject(data.issue.number, column.id, data.issue.id, "Issue");
+                        return await Issue.addIssueToProject(data.issue.number, project.name, column.id, data.issue.id, "Issue");
                     }
                 }
             }
@@ -653,7 +653,7 @@ async function issueMilestoned(data) {
                 let columns = await Project.getProjectColumns(project.columns_url);
 
                 // adding to left most (first) column in project
-                await Issue.addIssueToProject(data.issue.number, columns[0].id, data.issue.id, "Issue");
+                await Issue.addIssueToProject(data.issue.number, project.name, columns[0].id, data.issue.id, "Issue");
 
                 return `project card for #${data.issue.number} created in the milestone project '${project.name}'`;
             }
