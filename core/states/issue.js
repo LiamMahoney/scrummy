@@ -17,7 +17,7 @@ async function projectCardCreated(data) {
             // have to remove '{/number}' from the URL
             let milestoneURL = data.repository.milestones_url.substr(0, data.repository.milestones_url.indexOf("{/number}"));
             
-            if (milestoneURL, data.project_card.project_url) {
+            if (isProjectMilestone(milestoneURL, data.project_card.project_url)) {
                 return await milestoneProjectCardCreated(data);
             } else {
                 return await normalProjectCardCreated(data);
