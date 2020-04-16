@@ -32,7 +32,7 @@ async function moveProjectCard(cardID, columnID) {
         return await request.handleQL(resp);
 
     } catch (err) {
-        throw err;;
+        throw err;
     }
 }
 
@@ -54,7 +54,7 @@ async function deleteProjectCard(cardID) {
 
         return await request.handleRest(204, resp);
     } catch (err) {
-        throw err;;
+        throw err;
     }
 }
 

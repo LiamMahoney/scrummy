@@ -12,7 +12,7 @@ async function projectCreated(data) {
 
         return `created label 'project: ${data.project.name.toLowerCase()}'`;
     } catch (err) {
-        throw err;;
+        throw err;
     }
 }
 

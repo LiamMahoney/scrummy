@@ -20,7 +20,7 @@ async function getIssue(issURL) {
 
     } catch (err) {
 
-        throw err;;
+        throw err;
 
     } 
 }
@@ -53,7 +53,7 @@ async function addLabels(issue, labels, repoOwner, repoName) {
 
     } catch (err) {
 
-        throw err;;
+        throw err;
 
     }
 }
@@ -82,7 +82,7 @@ async function removeLabel(issue, label, repoOwner, repoName) {
 
     } catch (err) {
 
-        throw err;;
+        throw err;
 
     }
 }
@@ -143,7 +143,7 @@ async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
         return await request.handleQL(resp);
 
     } catch(err) {
-        throw err;;
+        throw err;
     }
 }
 
@@ -175,7 +175,7 @@ async function addIssueToProject(issueNumber, columnID, contentID, contentType) 
 
         return `Added issue #${issueNumber} to the project`;
     } catch (err) {
-        throw err;;
+        throw err;
     }
 }
 
