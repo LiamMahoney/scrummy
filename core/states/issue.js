@@ -13,29 +13,29 @@ async function issueAddedToProject(data) {
         // checking that the project card is an instance of an issue
         // only project cards that are instances of issues have the content_url field
         if (data.project_card.content_url) {
-            let proms = [];
-            proms.push(Issue.getIssue(data.project_card.content_url));
-            proms.push(findProjectLabel(data));
-
-            // TODO: refactor this so it works with milestone projects (no project label exists)
-            let [issue, labelToAdd] = await Promise.all(proms);
+            let issue = await Issue.getIssue(data.project_card.content_url);
+            let labelToAdd = undefined;
             
-            let returns = [];
-
             try {
-                // adding project label if there is one
-                returns.push(await Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
+                labelToAdd = await findProjectLabel(data);
             } catch (err) {
-                if (!err instanceof MissingProjectLabel) {
-                    // error other than missing project label, throw it
-                    throw err;
+                if (err instanceof MissingProjectLabel) {
+                    // project label missing from issue - should be milestone
+                    // TODO: should check if it's a milestone first in this function.. 
+                    return await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name);
                 }
+                throw err;
             }
+            
+            let proms = [];
+
+            // adding project label if there is one
+            proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
 
             // moving project card, if needed
-            returns.push(await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
+            proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
 
-            return returns;
+            return await Promise.all(proms);
         }
     } catch (err) {
         throw err;
@@ -101,7 +101,7 @@ async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber,
                 // found column to move project card to
                 await ProjectCard.moveProjectCard(projectCardID, column.node_id);
 
-                return `moved project card for #${issueNumber} in ${project.name} to column.name`;
+                return `moved project card for #${issueNumber} in ${project.name} to ${column.name}`;
             }
         }
 
