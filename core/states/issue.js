@@ -722,7 +722,7 @@ async function issueMilestoned(data) {
 
 /**
  * Finds and deletes the issue's project card in the milestone project is was
- * just removed from.
+ * just removed from if the project is still active.
  * 
  * @param {Object} data issue webhook payload 
  */
@@ -730,15 +730,18 @@ async function issueDemilestoned(data) {
     try {
         let projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
 
-        // finding project card in the milestone project the issue was just removed from
+        // finding project card in the milestone project the issue was just removed from and chceking the project is open
         for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === data.milestone.title.toLowerCase().trim()) {
-                // TODO: check if project is active
+                // don't want to remove project cards from closed milestone projects
+                if (projectCard.node.project.state.toLowerCase() === "open") {
+                    // deleting the project card in the active milestone project
+                    await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
 
-                // deleting the project card in the milestone project
-                await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
-
-                return `removed project card for #${data.issue.number} from '${projectCard.node.project.name}'`;
+                    return `removed project card for #${data.issue.number} from '${projectCard.node.project.name}'`;
+                } else {
+                    return `project card for #${data.issue.number} not touched in '${projectCard.node.project.name}' becuase the project is closed`;
+                }
             }
         }
 
