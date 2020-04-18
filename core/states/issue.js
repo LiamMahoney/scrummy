@@ -760,5 +760,6 @@ module.exports = {
     projectCardMoved,
     issueUnlabeled,
     issueMilestoned,
-    issueDemilestoned
+    issueDemilestoned,
+    isProjectMilestone
 }
