@@ -95,9 +95,50 @@ async function getProjectColumns(URL) {
     }
 }
 
+/**
+ * Creates a new copy of a repository project.
+ * 
+ * @param {String} ownerID nodeID of the owner of the project
+ * @param {String} cloneID nodeID of the project to clone
+ * @param {String} name name of the new project
+ * @param {String} body description of the new project
+ */
+async function cloneProject(ownerID, cloneID, name, body) {
+    try {
+        let options = {
+            path: `/graphql`
+        }
+
+        let payload = {
+            query: `mutation {
+                cloneProject(input: {
+                    targetOwnerId: "${ownerID}",
+                    sourceId: "${cloneID}",
+                    includeWorkflows: true,
+                    name: "${name}",
+                    body: "${body}",
+                    public: true
+                }) {
+                    project {
+                        name
+                    }
+                }
+            }`
+        }
+
+        let resp = await request.handleQL(await request.post(options, payload));
+
+        return `created milestone project '${resp.data.cloneProject.project.name}'`;
+
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     getProject,
     getColumn,
     getRepoProjects,
-    getProjectColumns
+    getProjectColumns,
+    cloneProject
 }

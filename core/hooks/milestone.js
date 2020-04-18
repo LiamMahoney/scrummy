@@ -2,6 +2,7 @@ const { Milestone } = require('../states');
 
 /**
  *
+ * @param {Object} data mlestone webhook payload
  */
 async function milestone(data) {
     try {
