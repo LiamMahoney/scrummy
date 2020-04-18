@@ -12,7 +12,7 @@ async function projectCard(data) {
                 return await Issue.projectCardCreated(data);
             case 'deleted':
                 // issue removed from a project or standalone project card deleted
-                return await Issue.issueRemovedFromProject(data);
+                return await Issue.projectCardDeleted(data);
             case 'converted':
                 // project card converted into an issue
                 return await Issue.projectCardConverted(data);

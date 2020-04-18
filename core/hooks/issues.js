@@ -21,6 +21,8 @@ async function issues(data) {
                 return await issue.issueUnlabeled(data);
             case 'milestoned':
                 return await issue.issueMilestoned(data);
+            case 'demilestoned':
+                return await issue.issueDemilestoned(data);
         }
     } catch (err) {
         throw err;

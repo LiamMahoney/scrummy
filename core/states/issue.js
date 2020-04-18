@@ -1,5 +1,5 @@
 const { Label, Issue, Project, ProjectCard } = require('../actions');
-const { MissingProjectLabel } = require('../../utils/errors');
+const { MissingProjectLabel, OutOfSync } = require('../../utils/errors');
 const request = require('../../utils/request');
 
 /**
@@ -85,7 +85,7 @@ async function normalProjectCardCreated(data) {
         let proms = [];
 
         proms.push(Issue.getIssue(data.project_card.content_url));
-        proms.push(findProjectLabel(data));
+        proms.push(findProjectLabel(data.project_card.project_url, data.repository.owner.login, data.repository.name));
        
         let [issue, labelToAdd] = await Promise.all(proms);
         
@@ -173,25 +173,47 @@ async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber,
 }
 
 /**
- * Removes the matching `project: <project>` label that the 
- * issue was just removed from.
+ * Checks if hte project card that was deleted was from a milestone project.
+ * If it is not a milestone project then removes the matching project label
+ * from the project card's issue.
  * 
  * @param {Object} data webhook payload
  */
-async function issueRemovedFromProject(data) {
+async function projectCardDeleted(data) {
     try {
         // checking that the project card is an instance of an issue
-        // only project cards that are instances of issues have the content_url field
         if (data.project_card.content_url) {
-            let proms = [];
-            proms.push(Issue.getIssue(data.project_card.content_url));
-            proms.push(findProjectLabel(data));
+            let milestoneURL = data.repository.milestones_url.substr(0, data.repository.milestones_url.indexOf("{/number}"));
 
-            let [issue, labelToRemove] = await Promise.all(proms);
-
-            // removing project label
-            return await Issue.removeLabel(issue.number, [labelToRemove.name], data.repository.owner.login, data.repository.name);
+            // there aren't any project labels for milestones
+            if (!await isProjectMilestone(milestoneURL, data.project_card.project_url)) {
+                return await normalProjectCardDeleted(data.project_card.project_url, data.project_card.content_url, data.repository.owner.login, data.repository.name);
+            }
         }
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Removes the 'project: <project>' label that the issue was just removed
+ * from.
+ * 
+ * @param {String} projectURL GET project API url
+ * @param {String} issueURL GET issue API url
+ * @param {String} repoOwner the repository owner's login
+ * @param {String} repoName the name of the repository
+ */
+async function normalProjectCardDeleted(projectURL, issueURL, repoOwner, repoName) {
+    try {
+        let proms = [];
+        proms.push(Issue.getIssue(issueURL));
+        proms.push(findProjectLabel(projectURL, repoOwner, repoName));
+
+        let [issue, labelToRemove] = await Promise.all(proms);
+
+        // removing project label
+        return await Issue.removeLabel(issue.number, [labelToRemove.name], repoOwner, repoName);
     } catch (err) {
         throw err;
     }
@@ -208,7 +230,7 @@ async function projectCardConverted(data) {
     try {
         let proms = [];
         proms.push(Issue.getIssue(data.project_card.content_url));
-        proms.push(findProjectLabel(data));
+        proms.push(findProjectLabel(data.project_card.project_url, data.repository.owner.login, data.repository.name));
         proms.push(findStageLabel(data.project_card.column_url, data.repository.owner.login, data.repository.name));
 
         let [issue, projectLabel, stageLabel] = await Promise.all(proms);
@@ -226,15 +248,18 @@ async function projectCardConverted(data) {
  * the project card (instance of issue) was just added to
  * or removed from.
  * 
- * @param {Object} data webhook payload
+ * @param {String} proejctURL URL to get project
+ * @param {String} repoOwner owner of the github repository
+ * @param {String} repoName name of the repository
  * @returns {Object} describes the matching project label
  * to add or remove with name and id keys
  */
-async function findProjectLabel(data) {
+async function findProjectLabel(projectURL, repoOwner, repoName) {
     try {
         proms = [];
-        proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
-        proms.push(Project.getProject(data.project_card.project_url));
+        proms.push(Label.getAllLabels(repoOwner, repoName));
+        // TODO: delete Project.getProject and replace with request.genericGet
+        proms.push(Project.getProject(projectURL));
 
         let [labels, project] = await Promise.all(proms);
 
@@ -655,7 +680,7 @@ async function projectLabelRemovedFromIssue(data) {
             if (projectCard.node.project.name.toLowerCase().trim() === projectToRemove) {
                 await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
 
-                return `removed #${data.issue.number} from 'projectCard.node.project.name'`;
+                return `removed #${data.issue.number} from '${projectCard.node.project.name}'`;
             }
         }
 
@@ -695,12 +720,42 @@ async function issueMilestoned(data) {
     }
 }
 
+/**
+ * Finds and deletes the issue's project card in the milestone project is was
+ * just removed from.
+ * 
+ * @param {Object} data issue webhook payload 
+ */
+async function issueDemilestoned(data) {
+    try {
+        let projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+
+        // finding project card in the milestone project the issue was just removed from
+        for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
+            if (projectCard.node.project.name.toLowerCase().trim() === data.milestone.title.toLowerCase().trim()) {
+                // TODO: check if project is active
+
+                // deleting the project card in the milestone project
+                await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+
+                return `removed project card for #${data.issue.number} from '${projectCard.node.project.name}'`;
+            }
+        }
+
+        // a project card in the milestone project wasn't found
+        throw OutOfSync(`issue #${data.issue.number} was missing a project card in the milestone project '${data.milestone.title}'`);
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     projectCardCreated,
-    issueRemovedFromProject,
+    projectCardDeleted,
     projectCardConverted,
     issueLabeled,
     projectCardMoved,
     issueUnlabeled,
-    issueMilestoned
+    issueMilestoned,
+    issueDemilestoned
 }
