@@ -9,6 +9,8 @@ async function milestone(data) {
         switch (data.action) {
             case 'created':
                 return await Milestone.milestoneCreated(data);
+            case 'closed':
+                return await Milestone.milestoneClosed(data);
         }      
     } catch (err) {
         throw err;

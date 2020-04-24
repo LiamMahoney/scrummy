@@ -180,10 +180,36 @@ async function addIssueToProject(issueNumber, projectName, columnID, contentID, 
     }
 }
 
+/**
+ * Removes the milestone from an issue or pull request.
+ * 
+ * @param {int} issueNumber issue / pr number 
+ * @param {String} repoOwner github login of the repository owner
+ * @param {String} repoName name of the github repository
+ */
+async function removeMilestoneFromIssue(issueNumber, repoOwner, repoName) {
+    try {
+        let options = {
+            path: `/repos/${repoOwner}/${repoName}/issues/${issueNumber}`
+        }
+
+        let payload = {
+            milestone: null
+        }
+
+        await request.handleRest(200, await request.patch(options, payload));
+
+        return `removed milestone from #${issueNumber}`;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     getIssue,
     addLabels,
     removeLabel,
     getIssueProjectCards,
-    addIssueToProject
+    addIssueToProject,
+    removeMilestoneFromIssue
 }

@@ -146,6 +146,54 @@ function del(opts) {
 }
 
 /**
+ * Sends a HTTP patch request to the Github API.
+ * 
+ * @param {Object} opts: various HTTP request options
+ * @param {Object} data: data to send
+ */
+function patch(opts, data) {
+    //TODO: validate options
+    return new Promise((resolve, reject) => {
+        let options = {
+            hostname: config.githubApiUrl,
+            port: 443,
+            path: encodeURI(opts.path),
+            method: 'PATCH',
+            headers: {
+                Authorization: `Basic ${Buffer.from(`${config.gitUser}:${config.gitAPIToken}`).toString('base64')}`,
+                'User-Agent': 'Scrummy'
+            }
+        }
+        
+        //TODO: need to do the same with regular options
+        Object.assign(options.headers, opts.headers);
+
+        let req = https.request(options, (res) => {
+            let data = '';
+
+            res.on('data', (d) => {
+                data += d;
+            }).on('end', function () {
+                return resolve({
+                    data: JSON.parse(data),
+                    statusCode: this.statusCode,
+                    path: this.req.path,
+                    method: this.req.method
+                });
+            });
+
+        });
+
+        req.on('error', (err) => {
+            return reject(err);
+        });
+
+        req.write(JSON.stringify(data));
+        req.end();
+    });
+}
+
+/**
  * Determines if the response from the REST api was successful
  * or not. If not, formats the error message based on the data
  * recieved from the response.
@@ -246,6 +294,7 @@ module.exports = {
     get,
     post,
     del,
+    patch,
     handleRest,
     handleQL,
     genericGet,

@@ -135,10 +135,68 @@ async function cloneProject(ownerID, cloneID, name, body) {
     }
 }
 
+/**
+ * Closes a project with a given name.
+ * 
+ * @param {String} project the name of the project to look for and close
+ * @param {String} repoName name of the repository the project would be in
+ * @param {String} repOwner github login of the owner of the repository
+ * @returns {String} message stating what project was closed
+ */
+async function closeProjectName(project, repoName, repoOwner) {
+    try {
+        let projectObj = await findProjectFromName(project, repoName, repoOwner);
+
+        let options = {
+            path: `/projects/${projectObj.id}`,
+            headers: {
+                "Accept": "application/vnd.github.inertia-preview+json"
+            }
+        }
+
+        let payload = {
+            state: "closed"
+        }
+
+        let resp = await request.handleRest(200, await request.patch(options, payload), );
+
+        return `closed project '${project}'`;
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Finds a project based on the project name and returns details about that
+ * project. If not found throws an error.
+ * 
+ * @param {String} projectName the name of the project to look for
+ * @param {String} repoName name of the repository the project would be in
+ * @param {String} repOwner github login of the owner of the repository
+ * @returns {Object} project details for the project with the given name
+ */
+async function findProjectFromName(projectName, repoName, repoOwner) {
+    try {
+        let projects = await getRepoProjects(repoOwner, repoName);
+
+        for (project of projects) {
+            if (project.name.toLowerCase().trim() === projectName.toLowerCase().trim()) {
+                return project;
+            }
+        }
+
+        throw error(`couldn't find a project with the name of ${projectName} in the repository ${repoName}`);
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     getProject,
     getColumn,
     getRepoProjects,
     getProjectColumns,
-    cloneProject
+    cloneProject,
+    closeProjectName
 }

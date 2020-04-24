@@ -1,4 +1,4 @@
-const { Project } = require('../actions');
+const { Project, Milestone, Issue } = require('../actions');
 const { OutOfSync } = require('../../utils/errors');
 
 
@@ -27,6 +27,44 @@ async function milestoneCreated(data) {
     }
 }
 
+/**
+ * Closes the associated milestone project and then removes every issue and PR
+ * that was associated to it.
+ * 
+ * TODO: this functionality makes me think logging in the action would work best
+ * 
+ * @param {Object} data milestone webhook payload
+ * @returns {Array} full of strings that are all responses of actions that have happened
+ */
+async function milestoneClosed(data) {
+    try {
+        let responses = [];
+        responses.push(await Project.closeProjectName(data.milestone.title, data.repository.name, data.repository.owner.login));
+        
+        let milestoneItems = await Milestone.getMilestoneItems(data.milestone.number, data.milestone.open_issues, data.repository.owner.login, data.repository.name);
+
+        let proms = [];
+
+        // clearing all issues
+        for (issue of milestoneItems.data.repository.milestone.issues.nodes) {
+            proms.push(Issue.removeMilestoneFromIssue(issue.number, data.repository.owner.login, data.repository.name));
+        }
+
+        // clearing all pull requests
+        for (pr of milestoneItems.data.repository.milestone.pullRequests.nodes) {
+            proms.push(Issue.removeMilestoneFromIssue(pr.number, data.repository.owner.login, data.repository.name));
+        }
+
+        responses.concat(await Promise.all(proms));
+
+        return responses;
+
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
-    milestoneCreated
+    milestoneCreated,
+    milestoneClosed
 }
