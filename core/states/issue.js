@@ -491,8 +491,6 @@ async function findProjColumnFromStageName(stage, columns, project) {
  * Creates a project card in the matching project as the 'project: <project>'
  * label that was just added to the issue. Checks if issue already has a
  * project card in that project first.
- *  
- * TODO: configure to work with pull requests
  * 
  * @param {Object} data issue webhook payload 
  */
