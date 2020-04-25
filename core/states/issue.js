@@ -389,8 +389,7 @@ async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner,
             }
         }
 
-        //TODO: should this be an error or not?
-        return `old 'stage' label not found in issue #${issue}`;
+        throw OutOfSync(`old 'stage' label not found in issue #${issue}`);
     } catch(err) {
         throw err;
     }
