@@ -3,6 +3,7 @@ const Project = require('./actions/project');
 const Issue = require('./actions/issue');
 const ProjectCard = require('./actions/project_card');
 const Milestone = require('./actions/milestone');
+const PullRequest = require('./actions/pull_request');
 
 
 // This file holds all of the actions so there is only one import required in scrummy.js
@@ -14,5 +15,6 @@ module.exports = {
     Project,
     Issue,
     ProjectCard,
-    Milestone
+    Milestone,
+    PullRequest
 }

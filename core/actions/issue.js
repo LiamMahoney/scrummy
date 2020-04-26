@@ -78,7 +78,7 @@ async function removeLabel(issue, label, repoOwner, repoName) {
 
         await request.handleRest(200, resp);
 
-        return `removed label '${label}' from issue #${issue}`;
+        return `removed label '${label}' from #${issue}`;
 
     } catch (err) {
 

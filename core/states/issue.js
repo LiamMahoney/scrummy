@@ -1,4 +1,4 @@
-const { Label, Issue, Project, ProjectCard } = require('../actions');
+const { Label, Issue, Project, ProjectCard, PullRequest } = require('../actions');
 const { MissingProjectLabel, OutOfSync } = require('../../utils/errors');
 const request = require('../../utils/request');
 
@@ -359,7 +359,7 @@ async function stageLabelAddedToIssue(data) {
         let proms = [];
 
         proms.push(removeOldStageLabel(data.label.name, data.issue.labels, data.issue.number, data.repository.owner.login, data.repository.name));
-        proms.push(moveAllIssueProjectCards(data.label.name, data.issue.number, data.repository.owner.login, data.repository.name));
+        proms.push(moveAllIssueProjectCards(data.label.name, data.issue.number, 'Issue', data.repository.owner.login, data.repository.name));
 
         return await Promise.all(proms);
 
@@ -389,7 +389,7 @@ async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner,
             }
         }
 
-        return `old 'stage' label not found in issue #${issue}`;
+        return `old 'stage' label not found in #${issue}`;
     } catch(err) {
         throw err;
     }
@@ -400,21 +400,32 @@ async function removeOldStageLabel(newStageLabel, issueLabels, issue, repoOwner,
  * 
  * @param {String} newStageLabel the new stage label that was added 
  * @param {int} issueNumber Github issue number 
+ * @param {String} type one of ['Issue', 'Pull Request'] depending on the type of object
  * @param {String} repoOwner Github login of the owner of the repo
  * @param {String} repoName name of the repository
  */
-async function moveAllIssueProjectCards(newStageLabel, issueNumber, repoOwner, repoName) {
+async function moveAllIssueProjectCards(newStageLabel, issueNumber, type, repoOwner, repoName) {
     try {
-        let issueCards = await Issue.getIssueProjectCards(issueNumber, repoOwner, repoName);
-
         let stage = newStageLabel.substr(newStageLabel.indexOf(":") + 1).trim().toLowerCase();
-
         let proms = [];
+        //FIXME: need to figure out a better solution for this
+        if (type === 'Issue') {
+            let issueCards = await Issue.getIssueProjectCards(issueNumber, repoOwner, repoName);
 
-        for (projectCard of issueCards.data.repository.issue.projectCards.edges) {
-            // only moving project cards in projects that are open
-            if (projectCard.node.project.state === "OPEN") {
-                proms.push(moveIssueProjectCard(stage, projectCard.node));
+            for (projectCard of issueCards.data.repository.issue.projectCards.edges) {
+                // only moving project cards in projects that are open
+                if (projectCard.node.project.state === "OPEN") {
+                    proms.push(moveIssueProjectCard(stage, projectCard.node));
+                }
+            }
+        } else if (type === 'Pull Request') {
+            let prCards = await PullRequest.getPRProjectCards(issueNumber, repoOwner, repoName);
+
+            for (projectCard of prCards.data.repository.pullRequest.projectCards.edges) {
+                // only moving project cards in projects that are open
+                if (projectCard.node.project.state === "OPEN") {
+                    proms.push(moveIssueProjectCard(stage, projectCard.node));
+                }
             }
         }
 
@@ -490,6 +501,8 @@ async function findProjColumnFromStageName(stage, columns, project) {
  * Creates a project card in the matching project as the 'project: <project>'
  * label that was just added to the issue. Checks if issue already has a
  * project card in that project first.
+ * 
+ * FIXME: Pretty much the same as pullRequest.projectLabelAddedToIssue
  * 
  * @param {Object} data issue webhook payload 
  */
@@ -758,5 +771,7 @@ module.exports = {
     issueUnlabeled,
     issueMilestoned,
     issueDemilestoned,
-    isProjectMilestone
+    isProjectMilestone,
+    removeOldStageLabel,
+    moveAllIssueProjectCards
 }
