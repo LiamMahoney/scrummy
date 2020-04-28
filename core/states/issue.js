@@ -212,7 +212,7 @@ async function normalProjectCardDeleted(projectURL, issueURL, repoOwner, repoNam
         let [issue, labelToRemove] = await Promise.all(proms);
 
         // removing project label
-        return await Issue.removeLabel(issue.number, [labelToRemove.name], repoOwner, repoName);
+        return await Issue.removeLabel(issue.number, labelToRemove.name, repoOwner, repoName);
     } catch (err) {
         throw err;
     }
@@ -246,6 +246,8 @@ async function projectCardConverted(data) {
  * Finds the matching `project: <project>` for the project
  * the project card (instance of issue) was just added to
  * or removed from.
+ * 
+ * TODO: might be better to have this function look only at the labels on the issue. Getting 404 error when removing teh project label from an Issue/PR becuase the proejct label is already removed
  * 
  * @param {String} proejctURL URL to get project
  * @param {String} repoOwner owner of the github repository

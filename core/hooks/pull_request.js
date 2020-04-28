@@ -13,7 +13,7 @@ async function pullRequest(data) {
             case 'labeled':
                 return await PullRequest.pullRequestLabeled(data);
             case 'unlabeled':
-                console.log("not implemented yet");
+                return await PullRequest.PullRequestUnlabeled(data);
         }
     } catch (err) {
         throw err;

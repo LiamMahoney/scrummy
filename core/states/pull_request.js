@@ -1,5 +1,5 @@
 let issueState = require('./issue');
-let { Project, Issue, PullRequest } = require('../actions');
+let { Project, Issue, PullRequest, ProjectCard } = require('../actions');
 
 /**
  * Determines action to be done based on what type of 
@@ -103,6 +103,55 @@ async function isPRInProject(prNumber, project, repoOwner, repoName) {
     }
 }
 
+/**
+ * Determines what needs to be done based on the type of label
+ * that was removed from the issue.
+ * 
+ * @param {Object} data Pull request webhook payload
+ */
+async function PullRequestUnlabeled(data) {
+    try {
+        let labelType = data.label.name.substr(0, data.label.name.indexOf(":")).toLowerCase();
+
+        switch(labelType) {
+            case 'project':
+                return await projectLabelRemovedFromPR(data);
+        }
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Finds the project card associated to the PR that is in the project 
+ * that matches the project label that was just removed from the PR. 
+ * Removes the matching project from the PR (deletes the project card).
+ * 
+ * @param {Object} data Pull request webhook payload
+ */
+async function projectLabelRemovedFromPR(data) {
+    try {
+        // name of the project to remove from the issue from a 'project: <project>' label
+        let projectToRemove = data.label.name.substr(data.label.name.indexOf(':') + 1).trim().toLowerCase();
+
+        let projectCards = await PullRequest.getPRProjectCards(data.pull_request.number, data.repository.owner.login, data.repository.name);
+
+        // searching for project card that matches the label just removed from the PR
+        for (projectCard of projectCards.data.repository.pullRequest.projectCards.edges) {
+            if (projectCard.node.project.name.toLowerCase().trim() === projectToRemove) {
+                await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+
+                return `removed #${data.pull_request.number} from '${projectCard.node.project.name}'`;
+            }
+        }
+
+        throw new Error(`couldn't find a project card for issue #${data.pull_request.number} that matches the label '${data.label.name}'`);
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
-    pullRequestLabeled
+    pullRequestLabeled,
+    PullRequestUnlabeled
 }
