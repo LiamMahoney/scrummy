@@ -64,19 +64,14 @@ async function projectLabelAddedToPullRequest(data) {
                 if (project.name.toLowerCase().trim() === projectAddedTo) {
                     let columns = await Project.getProjectColumns(project.columns_url);
     
-                    for (column of columns) {
-                        //FIXME: think of a better way to identify a project column to add the project card to
-                        if (column.name.trim().toLowerCase() === "to do") {
-                            return await Issue.addIssueToProject(data.pull_request.number, project.name, column.id, data.pull_request.id, "PullRequest");
-                        }
-                    }
+                    return await Issue.addIssueToProject(data.pull_request.number, project.name, columns[0].id, data.pull_request.id, "PullRequest");
                 }
             }
     
             return `couldn't match the label '${data.label.name}' to a project in the repository ${data.repository.name}. Issue #${data.issue.number} was not added to the associated project`;
         }
 
-        return `the issue #${data.issue.number} already has a project card in the project '${projectAddedTo}'`;
+        return `the issue #${data.pull_request.number} already has a project card in the project '${projectAddedTo}'`;
     } catch (err) {
         throw err;
     }

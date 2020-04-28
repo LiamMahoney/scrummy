@@ -68,7 +68,7 @@ async function milestoneProjectCardCreated(data) {
     try {
         let issue = await Issue.getIssue(data.project_card.content_url);
 
-        return await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name);
+        return await findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column_url, data.repository.owner.login, data.repository.name);
     } catch (err) {
         throw err;
     }
@@ -95,7 +95,7 @@ async function normalProjectCardCreated(data) {
         proms.push(Issue.addLabels(issue.number, [labelToAdd.name], data.repository.owner.login, data.repository.name));
 
         // moving project card, if needed
-        proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column, data.repository.owner.login, data.repository.name));
+        proms.push(findNewProjectCardStage(issue, data.project_card.node_id, data.project_card.project_url, data.project_card.column_url, data.repository.owner.login, data.repository.name));
 
         return await Promise.all(proms);
     } catch (err) {
@@ -113,7 +113,6 @@ async function normalProjectCardCreated(data) {
  * @param {String} columnURL API GET URL for a column
  * @param {String} repoOwner the owner of the repository to look in
  * @param {String} repoName the name of the reposiotory to look in
- * 
  */
 async function findNewProjectCardStage(issue, projectCardID, projectURL, columnURL, repoOwner, repoName) {
     try {
@@ -519,12 +518,7 @@ async function projectLabelAddedToIssue(data) {
                 if (project.name.toLowerCase().trim() === projectAddedTo) {
                     let columns = await Project.getProjectColumns(project.columns_url);
     
-                    for (column of columns) {
-                        //FIXME: think of a better way to identify a project column to add the project card to
-                        if (column.name.trim().toLowerCase() === "to do") {
-                            return await Issue.addIssueToProject(data.issue.number, project.name, column.id, data.issue.id, "Issue");
-                        }
-                    }
+                    return await Issue.addIssueToProject(data.issue.number, project.name, columns[0].id, data.issue.id, "Issue");
                 }
             }
     
