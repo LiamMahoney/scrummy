@@ -15,11 +15,11 @@ async function getPRProjectCards(prNumber, repoOwner, repoName) {
 
         let payload = {
             query: `query { 
-                repository(name: "scrummy", owner: "LiamMahoney"){
-                    pullRequest(number: 33) {
+                repository(name: "${repoName}", owner: "${repoOwner}"){
+                    pullRequest(number: ${prNumber}) {
                         title
                         projectCards {
-                            edges{
+                            edges {
                                 node {
                                     id
                                     databaseId

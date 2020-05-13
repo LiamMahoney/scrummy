@@ -85,9 +85,11 @@ async function normalProjectCardCreated(data) {
         let proms = [];
 
         proms.push(Issue.getIssue(data.project_card.content_url));
-        proms.push(findProjectLabel(data.project_card.project_url, data.repository.owner.login, data.repository.name));
+        proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
        
-        let [issue, labelToAdd] = await Promise.all(proms);
+        let [issue, labels] = await Promise.all(proms);
+
+        let labelToAdd = await findProjectLabel(data.project_card.project_url, labels);
         
         proms = [];
 
@@ -172,7 +174,7 @@ async function moveProjectCardToIssuesStage(stageLabel, projectURL, issueNumber,
 }
 
 /**
- * Checks if hte project card that was deleted was from a milestone project.
+ * Checks if the project card that was deleted was from a milestone project.
  * If it is not a milestone project then removes the matching project label
  * from the project card's issue.
  * 
@@ -186,9 +188,37 @@ async function projectCardDeleted(data) {
 
             // there aren't any project labels for milestones
             if (!await isProjectMilestone(milestoneURL, data.project_card.project_url)) {
-                return await normalProjectCardDeleted(data.project_card.project_url, data.project_card.content_url, data.repository.owner.login, data.repository.name);
+                let issue = await request.genericGet(data.project_card.content_url);
+
+                let projectLabel = await getIssueProjectLabel(issue.labels);
+
+                if (projectLabel) {
+                    return await Issue.removeLabel(issue.number, projectLabel.name, data.repository.owner.login, data.repository.name);
+                }
+
+                return `project label already removed from #${issue.number}`;
             }
         }
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Gets the project label on the issue, if there is one.
+ * 
+ * @param {Array} labels list of labesl on the issue
+ * @returns {Object, Boolean} Object descirbing the label if there is one, false if not
+ */
+async function getIssueProjectLabel(labels) {
+    try {
+        for (label of labels) {
+            if (label.name.indexOf("project:") >= 0) {
+                return label;
+            }
+        }
+
+        return false;
     } catch (err) {
         throw err;
     }
@@ -205,11 +235,9 @@ async function projectCardDeleted(data) {
  */
 async function normalProjectCardDeleted(projectURL, issueURL, repoOwner, repoName) {
     try {
-        let proms = [];
-        proms.push(Issue.getIssue(issueURL));
-        proms.push(findProjectLabel(projectURL, repoOwner, repoName));
+        let issue = await Issue.getIssue(issueURL);
 
-        let [issue, labelToRemove] = await Promise.all(proms);
+        let labelToRemove = await findProjectLabel(projectURL, issue.labels);
 
         // removing project label
         return await Issue.removeLabel(issue.number, labelToRemove.name, repoOwner, repoName);
@@ -229,10 +257,12 @@ async function projectCardConverted(data) {
     try {
         let proms = [];
         proms.push(Issue.getIssue(data.project_card.content_url));
-        proms.push(findProjectLabel(data.project_card.project_url, data.repository.owner.login, data.repository.name));
+        proms.push(Label.getAllLabels(data.repository.owner.login, data.repository.name));
         proms.push(findStageLabel(data.project_card.column_url, data.repository.owner.login, data.repository.name));
 
-        let [issue, projectLabel, stageLabel] = await Promise.all(proms);
+        let [issue, labels, stageLabel] = await Promise.all(proms);
+
+        let projectLabel = await findProjectLabel(data.project_card.project_url, labels);
 
         // adding stage label and project label to the issue
         return await Issue.addLabels(issue.number, [projectLabel.name, stageLabel.name], data.repository.owner.login, data.repository.name);
@@ -255,14 +285,10 @@ async function projectCardConverted(data) {
  * @returns {Object} describes the matching project label
  * to add or remove with name and id keys
  */
-async function findProjectLabel(projectURL, repoOwner, repoName) {
+async function findProjectLabel(projectURL, labels) {
     try {
-        proms = [];
-        proms.push(Label.getAllLabels(repoOwner, repoName));
         // TODO: delete Project.getProject and replace with request.genericGet
-        proms.push(Project.getProject(projectURL));
-
-        let [labels, project] = await Promise.all(proms);
+        let project = await Project.getProject(projectURL);
 
         return await matchLabel('project:', project.name, labels);
 
