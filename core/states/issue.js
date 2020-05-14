@@ -717,7 +717,7 @@ async function projectLabelRemovedFromIssue(data) {
         }
 
         // didn't find a project card in the project desired
-        throw new Error(`couldn't find a project card for issue #${data.issue.number} that matches the label '${data.label.name}'`);
+        return `Project card for #${data.issue.number} in '${data.label.name}' was already deleted`;
 
     } catch (err) {
         throw err;

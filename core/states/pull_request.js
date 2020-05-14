@@ -145,7 +145,7 @@ async function projectLabelRemovedFromPR(data) {
             }
         }
 
-        throw new Error(`couldn't find a project card for issue #${data.pull_request.number} that matches the label '${data.label.name}'`);
+        return `Project card for #${data.pull_request.number} in '${data.label.name}' was already deleted`;
     } catch (err) {
         throw err;
     }
