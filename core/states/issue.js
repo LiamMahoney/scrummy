@@ -753,17 +753,30 @@ async function issueMilestoned(data) {
 }
 
 /**
- * Finds and deletes the issue's project card in the milestone project is was
- * just removed from if the project is still active.
+ * Finds and deletes the issue or pull request's project card in the milestone 
+ * project is was just removed from if the project is still active. 
+ * Have to check if the 'issue' is an issue or a pull request becuase this 
+ * comes through with the same webhook and action for both.
  * 
  * @param {Object} data issue webhook payload 
  */
 async function issueDemilestoned(data) {
     try {
-        let projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+        let projectCards = type = undefined;
+
+        // no better way to determine if it's an issue or pull request
+        if (Object.keys(data.issue).indexOf("pull_request") > 0) {
+            // Pull request demilestoned
+            projectCards = await PullRequest.getPRProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+            type = "pullRequest";
+        } else {
+            // Issue demilestoned
+            projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+            type = "issue";
+        }
 
         // finding project card in the milestone project the issue was just removed from and chceking the project is open
-        for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
+        for (projectCard of projectCards.data.repository[type].projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === data.milestone.title.toLowerCase().trim()) {
                 // don't want to remove project cards from closed milestone projects
                 if (projectCard.node.project.state.toLowerCase() === "open") {
