@@ -11,7 +11,7 @@ async function project(data) {
     try {
         switch (data.action) {
             case 'created':
-                return await Project.projectCreated(data);
+                return 'not implemented';
         }
     } catch (err) {
         throw err;

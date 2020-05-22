@@ -25,7 +25,7 @@ function get(opts) {
 
         let req = https.request(options, (res) => {
             let data = '';
-            console.log(`response status code: ${res.statusCode}`);
+            console.debug(`GET response status code: ${res.statusCode}`);
 
             res.on('data', (d) => {
                 data += d;
@@ -74,6 +74,7 @@ function post(opts, data) {
 
         let req = https.request(options, (res) => {
             let data = '';
+            console.debug(`POST response status code: ${res.statusCode}`);
 
             res.on('data', (d) => {
                 data += d;
@@ -122,6 +123,8 @@ function del(opts) {
 
         let req = https.request(options, (res) => {
             let data = '';
+            console.debug(`DELETE response status code: ${res.statusCode}`);
+
 
             res.on('data', (d) => {
                 data += d;
@@ -170,6 +173,7 @@ function patch(opts, data) {
 
         let req = https.request(options, (res) => {
             let data = '';
+            console.debug(`PATCH response status code: ${res.statusCode}`);
 
             res.on('data', (d) => {
                 data += d;

@@ -9,16 +9,16 @@ async function projectCard(data) {
         switch (data.action) {
             case 'created':
                 // issue added to project or standalone project card created
-                return await Issue.projectCardCreated(data);
+                return 'not implemeneted';
             case 'deleted':
                 // issue removed from a project or standalone project card deleted
-                return await Issue.projectCardDeleted(data);
+                return 'not implemented';
             case 'converted':
                 // project card converted into an issue
-                return await Issue.projectCardConverted(data);
+                return 'not implemented';
             case 'moved':
                 // issue is moved in project
-                return await Issue.projectCardMoved(data);
+                return 'not implemented';
         }   
     } catch (err) {
         throw err;

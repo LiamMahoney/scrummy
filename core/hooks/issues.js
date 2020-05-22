@@ -116,7 +116,7 @@ class IssueHook extends ParentObjectHook {
             }
 
             //TODO: this should be a different level of logging
-            return `No old stage label found on #${this.issue.number}`;
+            return `No old stage label found on #${this.hook.issue.number}`;
         } catch (err) {
             throw err;
         }
@@ -156,13 +156,41 @@ class IssueHook extends ParentObjectHook {
                     // checking if a new promise was added to the array, meaning the column
                     // was found in this project
                     if (initLen === proms.length) {
-                        // TODO: needs to be logged at different level than info
+                        // TODO: needs to be logged at different level than info - should I be logging here?
                         proms.push(`Couldn't find the stage '${stage}' in the project '${projectCard.node.project.name}' while trying to move project card in this project for #${this.hook.issue.number}`);
                     }
                 }
             }
             
+            //FIXME: this return is logging as [object Object]
             return await Promise.all(proms);
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Deletes the project card associated to the issue in the project that
+     * matches the label that was just removed.
+     *
+     * @returns {String} message stating what actions were taken
+     */
+    async projectLabelRemoved() {
+        try {
+            // getting project name from the label that was just removed
+            let project = this.hook.label.name.substr(this.hook.label.name.indexOf(':') + 1).toLowerCase().trim();
+
+            let projectCards = await actions.Issue.getIssueProjectCards(this.hook.issue.number, this.repositoryOwner, this.repository);
+
+            for (let projectCard of projectCards.data.repository.issue.projectCards.edges) {
+                // finding project with same name as label removed
+                if (projectCard.node.project.name.toLowerCase().trim() === project) {
+                    // deleting issue's project card in that project.
+                    return await actions.ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+                }
+            }
+
+            throw Error(`Couldn't find project card in project '${project}' for #${this.hook.issue.number} after the label '${this.hook.label.name}' was removed`);
         } catch (err) {
             throw err;
         }

@@ -53,7 +53,12 @@ class ParentObjectHook {
      */
     async unlabeled() {
         try {
-            throw Error("NOT IMPLEMENTED");
+            let type = await this.determineLabelType(this.hook.label);
+
+            switch(type) {
+                case 'project':
+                    return await this.projectLabelRemoved();
+            }
         } catch (err) {
             throw err;
         }
@@ -144,6 +149,14 @@ class ParentObjectHook {
      * Needs to be implemented in a class that extends this one.
      */
     async stageLabelAdded() {
+        throw Error('this is an abstract method that needs to be implemented in a child class');
+    }
+
+    /**
+     * ABSTRACT METHOD
+     * Needs to be implemented in a class that extends this one.
+     */
+    async projectLabelRemoved() {
         throw Error('this is an abstract method that needs to be implemented in a child class');
     }
 }

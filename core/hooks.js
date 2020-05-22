@@ -1,7 +1,6 @@
 const { milestone } = require('./hooks/milestone');
 const { issues } = require('./hooks/issues');
 const { project } = require('./hooks/project');
-const { projectColumns} = require('./hooks/project_columns');
 const { projectCard } = require('./hooks/project_card');
 const { pullRequest } = require('./hooks/pull_request');
 
@@ -13,7 +12,6 @@ module.exports = {
     milestone,
     issues,
     project,
-    projectColumns,
     projectCard,
     pullRequest
 }

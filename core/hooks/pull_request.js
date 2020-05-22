@@ -12,9 +12,9 @@ async function pullRequest(data) {
     try {
         switch (data.action) {
             case 'labeled':
-                return await PullRequest.pullRequestLabeled(data);
+                return 'not implemented';
             case 'unlabeled':
-                return await PullRequest.PullRequestUnlabeled(data);
+                return 'not implemented';
         }
     } catch (err) {
         throw err;
