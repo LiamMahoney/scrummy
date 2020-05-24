@@ -71,7 +71,15 @@ class ParentObjectHook {
      */
     async milestoned() {
         try {
-            throw Error("NOT IMPLEMENTED");
+            let obj = await this.determineMilestoneHookType();
+
+            switch(obj) {
+                case 'issue': 
+                    return await this.issueMilestoned();
+                case 'pull_request':
+                    return await this.pullRequestMilestoned();
+            }
+
         } catch (err) {
             throw err;
         }
@@ -158,6 +166,79 @@ class ParentObjectHook {
      */
     async projectLabelRemoved() {
         throw Error('this is an abstract method that needs to be implemented in a child class');
+    }
+
+    /**
+     * Determines if an Issue or a Pull Request was acted on during milestone
+     * operations. Both Issues and PRs come through the issue webhook.
+     * 
+     * @returns {String} the type of object acted on returns either: ['issue', 'pull_request']
+     * @throws {Error} when the object is not a PR or Issue
+     */
+    async determineMilestoneHookType() {
+        try {
+            if (Object.keys(this.hook).indexOf('issue') > -1) {
+                return 'issue';
+            } else if (Object.keys(this.hook).indexOf('pull_request') > -1) {
+                return 'pull_request';
+            }
+
+            throw Error(`recieved a milestone action that wasn't performed on an issue or pull request. Hook keys: [${Object.keys(this.hook)}], action: ${this.hook.action}`);
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Creates a project card in the associated milestone project. Adds the 
+     * project card to the first column in the project. If the issue 
+     * has a stage label the project card needs to be moved, but this is 
+     * handled by hook: project_card action: created.
+     * 
+     * @returns {String} note of what actions happened
+     */
+    async issueMilestoned() {
+        try {
+            let milestoneProject = await this.getMilestoneProject();
+
+            let columns = await actions.Project.getProjectColumns(milestoneProject.columns_url);
+
+            // adding project card to first column in project - if there's a stage label on the 
+            // issue this will be handled by hook: project_card action: created
+            return await actions.Issue.addIssueToProject(this.hook.issue.number, milestoneProject.name, columns[0].id, this.hook.issue.id, 'Issue');
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async pullRequestMilestoned() {
+        try {
+
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Gets the project associated to the milestone in the webhook.
+     * 
+     * @returns {Object} representation of the milestone project
+     * @throws {Error} if no project is found with a matching name as the milestone
+     */
+    async getMilestoneProject() {
+        try {
+            let projects = await actions.Project.getRepoProjects(this.repositoryOwner, this.repository);
+
+            for (let project of projects) {
+                if (project.name.toLowerCase().trim() === this.hook.milestone.title.toLowerCase().trim()) {
+                    return project;
+                }
+            }
+
+            throw Error(`couldn't find project for milestone '${this.hook.milestone.name}'`);
+        } catch (err) {
+            throw err;
+        }
     }
 }
 
