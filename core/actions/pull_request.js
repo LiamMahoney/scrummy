@@ -7,7 +7,7 @@ const request = require('../../utils/request');
  * @param {String} repoOwner owner of the repository
  * @param {String} repoName name of the repository
  */
-async function getPRProjectCards(prNumber, repoOwner, repoName) {
+async function getProjectCards(prNumber, repoOwner, repoName) {
     try {
         let options = {
             path: `/graphql`
@@ -57,5 +57,5 @@ async function getPRProjectCards(prNumber, repoOwner, repoName) {
 }
 
 module.exports = {
-    getPRProjectCards
+    getProjectCards
 }

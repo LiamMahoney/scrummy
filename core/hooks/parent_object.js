@@ -89,11 +89,30 @@ class ParentObjectHook {
     }
 
     /**
-     * ABSTRACT METHOD
-     * Needs to be implemented in a class that extends this one.
+     * Determines if an Issue or a Pull Request was just demilestoned in order
+     * to supply the demilestonedHelper with the proper parameters.
+     * NOTE: thought this was the best way to handle both PRs and Issues coming
+     * through the same hook for demilestone actions.
+     * 
+     * @returns {String} statement of the actions that were done
      */
     async demilestoned() {
-        throw Error('this is an abstract method that needs to be implemented in a child class');
+        try {
+            // this blows
+            if (this.hook.issue.html_url.indexOf('issues') > -1) {
+                // Issues have 'issues' in the html_url value
+                return await this.demilestonedHelper('Issue', 'issue');
+            } else if (Object.keys(this.hook.issue).indexOf('pull_request') > -1) {
+                // PRs have a 'pull_request' key in this.hook.issue - this 
+                // could be changed to check for 
+                // this.hook.issue.html_url.indexOf('pull')
+                return await this.demilestonedHelper('PullRequest', 'pullRequest');
+            } else {
+                return `while determining the type of parent object that was dmeilestoned, encountered unexpcted type. Hook: ${this.hook}`;
+            }
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
@@ -183,6 +202,47 @@ class ParentObjectHook {
             }
 
             throw Error(`couldn't find project for milestone '${this.hook.milestone.name}'`);
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Removes the project card in the milestone project the parent object was
+     * just demilestoned from.
+     * NOTE: pull request milestone actions come through the issue webhook,
+     * which made me make this method this twisted way. The only change between
+     * Issues and PRs is the method to call to get their associated project
+     * cards and the name of one of the keys returned by that method. Keeping
+     * actionModule and pcKey as separate parameters for clarity.
+     * 
+     * @param {String} actionModule the name of the action module to use, one of:
+     * ['PullRequest', 'Issue']
+     * @param {String} pcKey the key to use for the return data from the get
+     * project cards function, one of: ['pullRequest', 'issue']
+     * @returns {String} statement of the actions that were done
+     * @throws {Error} if the issue doesn't have a project card in the project
+     * with the same name as the milestone the issue was just demilestoned
+     * from
+     */
+    async demilestonedHelper(actionModule, pcKey) {
+        try {
+            let projectCards = await actions[actionModule].getProjectCards(this.hook.issue.number, this.repositoryOwner, this.repository);
+
+            // iterating through Issue's project cards trying to find the one 
+            // in the milestone project it was just demilestoned from
+            for (let projectCard of projectCards.data.repository[pcKey].projectCards.edges) {
+                // if the project is closed (meaning the milestone is closed)
+                // we want to preseve the state of the milestone when it was
+                // closed
+                if (projectCard.node.project.state === 'OPEN') {
+                    if (projectCard.node.project.name.toLowerCase().trim() === this.hook.milestone.title.toLowerCase().trim()) {
+                        return await actions.ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+                    }
+                }
+            }
+
+            throw Error(`couldn't find a project card in the milestone project '${this.hook.milestone.title}' for #${this.hook.issue.number}`);
         } catch (err) {
             throw err;
         }

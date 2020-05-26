@@ -87,7 +87,7 @@ async function projectLabelAddedToPullRequest(data) {
  */
 async function isPRInProject(prNumber, project, repoOwner, repoName) {
     try {
-        let projectCards = await PullRequest.getPRProjectCards(prNumber, repoOwner, repoName);
+        let projectCards = await PullRequest.getProjectCards(prNumber, repoOwner, repoName);
 
         // searching for project card that matches the label just removed from the issue
         for (projectCard of projectCards.data.repository.pullRequest.projectCards.edges) {
@@ -134,7 +134,7 @@ async function projectLabelRemovedFromPR(data) {
         // name of the project to remove from the issue from a 'project: <project>' label
         let projectToRemove = data.label.name.substr(data.label.name.indexOf(':') + 1).trim().toLowerCase();
 
-        let projectCards = await PullRequest.getPRProjectCards(data.pull_request.number, data.repository.owner.login, data.repository.name);
+        let projectCards = await PullRequest.getProjectCards(data.pull_request.number, data.repository.owner.login, data.repository.name);
 
         // searching for project card that matches the label just removed from the PR
         for (projectCard of projectCards.data.repository.pullRequest.projectCards.edges) {

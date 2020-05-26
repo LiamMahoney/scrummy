@@ -96,7 +96,7 @@ async function removeLabel(issue, label, repoOwner, repoName) {
  * @param {String} repoOwner Github login of the owner of the repository
  * @param {String} repoName name of the repository
  */
-async function getIssueProjectCards(issueNumber, repoOwner, repoName) {
+async function getProjectCards(issueNumber, repoOwner, repoName) {
     try {
 
         let options = {
@@ -209,7 +209,7 @@ module.exports = {
     getIssue,
     addLabels,
     removeLabel,
-    getIssueProjectCards,
+    getProjectCards,
     addIssueToProject,
     removeMilestoneFromIssue
 }

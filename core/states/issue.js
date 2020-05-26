@@ -437,7 +437,7 @@ async function moveAllIssueProjectCards(newStageLabel, issueNumber, type, repoOw
         let proms = [];
         //FIXME: need to figure out a better solution for this
         if (type === 'Issue') {
-            let issueCards = await Issue.getIssueProjectCards(issueNumber, repoOwner, repoName);
+            let issueCards = await Issue.getProjectCards(issueNumber, repoOwner, repoName);
 
             for (projectCard of issueCards.data.repository.issue.projectCards.edges) {
                 // only moving project cards in projects that are open
@@ -446,7 +446,7 @@ async function moveAllIssueProjectCards(newStageLabel, issueNumber, type, repoOw
                 }
             }
         } else if (type === 'Pull Request') {
-            let prCards = await PullRequest.getPRProjectCards(issueNumber, repoOwner, repoName);
+            let prCards = await PullRequest.getProjectCards(issueNumber, repoOwner, repoName);
 
             for (projectCard of prCards.data.repository.pullRequest.projectCards.edges) {
                 // only moving project cards in projects that are open
@@ -466,7 +466,7 @@ async function moveAllIssueProjectCards(newStageLabel, issueNumber, type, repoOw
  * Moves the project card to the correct column/stage.
  * 
  * @param {String} stage the name of the stage to move the project card to
- * @param {Object} projectCard an object representing a project card from the method Issue.getIssueProjectCards
+ * @param {Object} projectCard an object representing a project card from the method Issue.getProjectCards
  */
 async function moveIssueProjectCard(stage, projectCard) {
     try {
@@ -570,7 +570,7 @@ async function projectLabelAddedToIssue(data) {
  */
 async function isIssueInProject(issueNumber, project, repoOwner, repoName) {
     try {
-        let projectCards = await Issue.getIssueProjectCards(issueNumber, repoOwner, repoName);
+        let projectCards = await Issue.getProjectCards(issueNumber, repoOwner, repoName);
 
         // searching for project card that matches the label just removed from the issue
         for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
@@ -705,7 +705,7 @@ async function projectLabelRemovedFromIssue(data) {
         // name of the project to remove from the issue from a 'project: <project>' label
         let projectToRemove = data.label.name.substr(data.label.name.indexOf(':') + 1).trim().toLowerCase();
 
-        let projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+        let projectCards = await Issue.getProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
         
         // searching for project card that matches the label just removed from the issue
         for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
@@ -767,11 +767,11 @@ async function issueDemilestoned(data) {
         // no better way to determine if it's an issue or pull request
         if (Object.keys(data.issue).indexOf("pull_request") > 0) {
             // Pull request demilestoned
-            projectCards = await PullRequest.getPRProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+            projectCards = await PullRequest.getProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
             type = "pullRequest";
         } else {
             // Issue demilestoned
-            projectCards = await Issue.getIssueProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
+            projectCards = await Issue.getProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
             type = "issue";
         }
 
