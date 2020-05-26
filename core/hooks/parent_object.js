@@ -69,9 +69,8 @@ class ParentObjectHook {
      * it in the first column in the project. If the project card needs to be 
      * moved (parent has a stage label other than first column), this is 
      * handled by hook: project_card action: created.
-     * NOTE: 
-     * pull request milestone actions come through the issue webhook. The same
-     * actions work for both Issues and PRs.
+     * NOTE: pull request milestone actions come through the issue webhook. The
+     * same actions work for both Issues and PRs.
      * 
      * @returns {String} statement of the actions that were done
      */
@@ -90,16 +89,11 @@ class ParentObjectHook {
     }
 
     /**
-     * Removes the associated project card from the milestone project. NOTE:
-     * pull request demilestone actions come through the issue webhook.
-     * TODO: needs to determine if it's an Issue or PR. This action comes through the Issue webhook regardless.
+     * ABSTRACT METHOD
+     * Needs to be implemented in a class that extends this one.
      */
     async demilestoned() {
-        try {
-            throw Error("NOT IMPLEMENTED");
-        } catch (err) {
-            throw err;
-        }
+        throw Error('this is an abstract method that needs to be implemented in a child class');
     }
 
     /**

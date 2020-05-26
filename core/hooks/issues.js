@@ -45,6 +45,39 @@ class IssueHook extends ParentObjectHook {
     }
 
     /**
+     * Removes the project card in the milestone project the issue was just
+     * demilestoned from.
+     * NOTE: pull request milestone actions come through the issue webhook.
+     * 
+     * @returns {String} statement of the actions that were done
+     * @throws {Error} if the issue doesn't have a project card in the project
+     * with the same name as the milestone the issue was just demilestoned
+     * from
+     */
+    async demilestoned() {
+        try {
+            let projectCards = await actions.Issue.getIssueProjectCards(this.hook.issue.number, this.repositoryOwner, this.repository);
+
+            // iterating through Issue's project cards trying to find the one 
+            // in the milestone project it was just demilestoned from
+            for (let projectCard of projectCards.data.repository.issue.projectCards.edges) {
+                // if the project is closed (meaning the milestone is closed)
+                // we want to preseve the state of the milestone when it was
+                // closed
+                if (projectCard.node.project.state === 'OPEN') {
+                    if (projectCard.node.project.name.toLowerCase().trim() === this.hook.milestone.title.toLowerCase().trim()) {
+                        return await actions.ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+                    }
+                }
+            }
+
+            throw Error(`couldn't find a project card in the milestone project '${this.hook.milestone.title}' for #${this.hook.issue.number}`);
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
      * Adds the issue to the project of the label that was added to the issue.
      * 
      * @returns {String} message stating what project card was just created
