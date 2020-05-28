@@ -137,7 +137,7 @@ class IssueHook extends ParentObjectHook {
 
             let proms = [];
 
-            for (let projectCard of projectCards.data.repository.issue.projectCards.edges) {
+            for (let projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
 
                 // checking if the project card is in the right column and the project is open
                 if (projectCard.node.column.name.toLowerCase().trim() !== stage && projectCard.node.project.state !== 'CLOSED') {
@@ -182,7 +182,7 @@ class IssueHook extends ParentObjectHook {
 
             let projectCards = await actions.Issue.getProjectCards(this.hook.issue.number, this.repositoryOwner, this.repository);
 
-            for (let projectCard of projectCards.data.repository.issue.projectCards.edges) {
+            for (let projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
                 // finding project with same name as label removed
                 if (projectCard.node.project.name.toLowerCase().trim() === project) {
                     // deleting issue's project card in that project.

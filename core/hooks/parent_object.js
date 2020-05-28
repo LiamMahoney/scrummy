@@ -231,7 +231,7 @@ class ParentObjectHook {
 
             // iterating through Issue's project cards trying to find the one 
             // in the milestone project it was just demilestoned from
-            for (let projectCard of projectCards.data.repository[pcKey].projectCards.edges) {
+            for (let projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
                 // if the project is closed (meaning the milestone is closed)
                 // we want to preseve the state of the milestone when it was
                 // closed

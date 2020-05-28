@@ -90,7 +90,7 @@ async function isPRInProject(prNumber, project, repoOwner, repoName) {
         let projectCards = await PullRequest.getProjectCards(prNumber, repoOwner, repoName);
 
         // searching for project card that matches the label just removed from the issue
-        for (projectCard of projectCards.data.repository.pullRequest.projectCards.edges) {
+        for (projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === project.toLowerCase().trim()) {
                 return true;
             }
@@ -137,7 +137,7 @@ async function projectLabelRemovedFromPR(data) {
         let projectCards = await PullRequest.getProjectCards(data.pull_request.number, data.repository.owner.login, data.repository.name);
 
         // searching for project card that matches the label just removed from the PR
-        for (projectCard of projectCards.data.repository.pullRequest.projectCards.edges) {
+        for (projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === projectToRemove) {
                 await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
 

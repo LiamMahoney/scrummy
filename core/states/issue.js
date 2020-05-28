@@ -439,7 +439,7 @@ async function moveAllIssueProjectCards(newStageLabel, issueNumber, type, repoOw
         if (type === 'Issue') {
             let issueCards = await Issue.getProjectCards(issueNumber, repoOwner, repoName);
 
-            for (projectCard of issueCards.data.repository.issue.projectCards.edges) {
+            for (projectCard of issueCards.data.repository.parentObject.projectCards.edges) {
                 // only moving project cards in projects that are open
                 if (projectCard.node.project.state === "OPEN") {
                     proms.push(moveIssueProjectCard(stage, projectCard.node));
@@ -448,7 +448,7 @@ async function moveAllIssueProjectCards(newStageLabel, issueNumber, type, repoOw
         } else if (type === 'Pull Request') {
             let prCards = await PullRequest.getProjectCards(issueNumber, repoOwner, repoName);
 
-            for (projectCard of prCards.data.repository.pullRequest.projectCards.edges) {
+            for (projectCard of prCards.data.repository.parentObject.projectCards.edges) {
                 // only moving project cards in projects that are open
                 if (projectCard.node.project.state === "OPEN") {
                     proms.push(moveIssueProjectCard(stage, projectCard.node));
@@ -573,7 +573,7 @@ async function isIssueInProject(issueNumber, project, repoOwner, repoName) {
         let projectCards = await Issue.getProjectCards(issueNumber, repoOwner, repoName);
 
         // searching for project card that matches the label just removed from the issue
-        for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
+        for (projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === project.toLowerCase().trim()) {
                 return true;
             }
@@ -708,7 +708,7 @@ async function projectLabelRemovedFromIssue(data) {
         let projectCards = await Issue.getProjectCards(data.issue.number, data.repository.owner.login, data.repository.name);
         
         // searching for project card that matches the label just removed from the issue
-        for (projectCard of projectCards.data.repository.issue.projectCards.edges) {
+        for (projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === projectToRemove) {
                 await ProjectCard.deleteProjectCard(projectCard.node.databaseId);
 
@@ -776,7 +776,7 @@ async function issueDemilestoned(data) {
         }
 
         // finding project card in the milestone project the issue was just removed from and chceking the project is open
-        for (projectCard of projectCards.data.repository[type].projectCards.edges) {
+        for (projectCard of projectCards.data.repository.parentObject.projectCards.edges) {
             if (projectCard.node.project.name.toLowerCase().trim() === data.milestone.title.toLowerCase().trim()) {
                 // don't want to remove project cards from closed milestone projects
                 if (projectCard.node.project.state.toLowerCase() === "open") {
