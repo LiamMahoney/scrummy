@@ -16,7 +16,7 @@ async function getProjectCards(prNumber, repoOwner, repoName) {
         let payload = {
             query: `query { 
                 repository(name: "${repoName}", owner: "${repoOwner}"){
-                    pullRequest(number: ${prNumber}) {
+                    parentObject: pullRequest(number: ${prNumber}) {
                         title
                         projectCards {
                             edges {
