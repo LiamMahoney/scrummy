@@ -210,7 +210,10 @@ class ParentObjectHook {
             proms.push(this.removeOldStageLabel());
             proms.push(this.moveChildProjectCards());
 
-            return await Promise.all(proms);
+            let [label, move] = await Promise.all(proms);
+            
+            // destructuring return so it's logged properly
+            return [label, ...move];
         } catch (err) {
             throw err;
         }
@@ -281,7 +284,6 @@ class ParentObjectHook {
                 }
             }
             
-            //FIXME: this return is logging as [object Object]
             return await Promise.all(proms);
         } catch (err) {
             throw err;

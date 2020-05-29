@@ -29,8 +29,9 @@ async function moveProjectCard(cardID, columnID) {
 
         let resp = await request.post(options, payload);
 
-        return await request.handleQL(resp);
+        await request.handleQL(resp);
 
+        return `moved project card ${cardID} to column ${columnID}`;
     } catch (err) {
         throw err;
     }
