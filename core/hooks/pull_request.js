@@ -10,11 +10,15 @@ const { ParentObjectHook } = require('./parent_object');
  */
 async function pullRequest(data) {
     try {
+        let p = undefined;
+
         switch (data.action) {
             case 'labeled':
-                return 'not implemented';
+                p = new PullRequestHook(data);
+                return await p.labeled();
             case 'unlabeled':
-                return 'not implemented';
+                p = new PullRequestHook(data);
+                return await p.unlabeled();
         }
     } catch (err) {
         throw err;
@@ -24,7 +28,10 @@ async function pullRequest(data) {
 class PullRequestHook extends ParentObjectHook {
     constructor(data) {
         super(data);
-        this.type = 'pull_request';
+        this.actionModule = 'PullRequest';
+        this.hookKey = 'pull_request';
+        this.number = data.pull_request.number;
+        this.id = data.pull_request.id;
     }
 }
 

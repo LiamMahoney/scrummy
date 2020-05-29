@@ -546,7 +546,7 @@ async function projectLabelAddedToIssue(data) {
                 if (project.name.toLowerCase().trim() === projectAddedTo) {
                     let columns = await Project.getProjectColumns(project.columns_url);
     
-                    return await Issue.addIssueToProject(data.issue.number, project.name, columns[0].id, data.issue.id, "Issue");
+                    return await Issue.addToProject(data.issue.number, project.name, columns[0].id, data.issue.id, "Issue");
                 }
             }
     
@@ -742,7 +742,7 @@ async function issueMilestoned(data) {
                 let columns = await Project.getProjectColumns(project.columns_url);
 
                 // adding to left most (first) column in project
-                await Issue.addIssueToProject(data.issue.number, project.name, columns[0].id, data.issue.id, "Issue");
+                await Issue.addToProject(data.issue.number, project.name, columns[0].id, data.issue.id, "Issue");
 
                 return `project card for #${data.issue.number} created in the milestone project '${project.name}'`;
             }

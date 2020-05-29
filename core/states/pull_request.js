@@ -64,7 +64,7 @@ async function projectLabelAddedToPullRequest(data) {
                 if (project.name.toLowerCase().trim() === projectAddedTo) {
                     let columns = await Project.getProjectColumns(project.columns_url);
     
-                    return await Issue.addIssueToProject(data.pull_request.number, project.name, columns[0].id, data.pull_request.id, "PullRequest");
+                    return await Issue.addToProject(data.pull_request.number, project.name, columns[0].id, data.pull_request.id, "PullRequest");
                 }
             }
     

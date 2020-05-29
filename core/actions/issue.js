@@ -156,7 +156,7 @@ async function getProjectCards(issueNumber, repoOwner, repoName) {
  * @param {String} contentID issue ID to associated with the card
  * @param {String} contentType describes the contentID, either ['Issue', 'PullRequest']
  */
-async function addIssueToProject(issueNumber, projectName, columnID, contentID, contentType) {
+async function addToProject(issueNumber, projectName, columnID, contentID, contentType) {
     try {
         let options = {
             path: `/projects/columns/${columnID}/cards`,
@@ -210,6 +210,6 @@ module.exports = {
     addLabels,
     removeLabel,
     getProjectCards,
-    addIssueToProject,
+    addToProject,
     removeMilestoneFromIssue
 }
