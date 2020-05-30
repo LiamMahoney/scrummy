@@ -26,6 +26,9 @@ async function issues(data) {
             case 'demilestoned':
                 i = new IssueHook(data);
                 return await i.demilestoned();
+            case 'opened':
+                i = new IssueHook(data);
+                return await i.created();
         }
     } catch (err) {
         throw err;

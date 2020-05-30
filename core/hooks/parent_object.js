@@ -16,10 +16,30 @@ class ParentObjectHook {
     /**
      * Gets the first column of the 'template' project and adds the matching 
      * stage label to the Parent Object.
+     * 
+     * @returns {String} statement of the actions that were done
      */
     async created() {
         try {
-            throw error("NOT IMPLEMENTED");
+            let proms = [];
+            proms.push(actions.Project.getRepoProjects(this.repositoryOwner, this.repository));
+            proms.push(actions.Label.getAllLabels(this.repositoryOwner, this.repository));
+
+            let [projects, labels] = await Promise.all(proms);
+
+            for (let project of projects) {
+                if (project.name.toLowerCase() === 'template') {
+                    let columns = await actions.Project.getProjectColumns(project.columns_url);
+
+                    for (let label of labels) {
+                        if (label.name.toLowerCase().trim() === `stage: ${columns[0].name.toLowerCase().trim()}`) {
+                            return await actions.Issue.addLabels(this.number, [label.name], this.repositoryOwner, this.repository);
+                        }
+                    }
+                }
+            }
+
+            throw Error(`failed to add the first stage label in the template project for #${this.number}`);
         } catch (err) {
             throw err;
         }
@@ -30,6 +50,8 @@ class ParentObjectHook {
      * 2a. If stage label: move all child project cards to the stage in the
      * label
      * 2b. if project label: create project card in that project
+     * 
+     * @returns {String} statement of the actions that were done
      */
     async labeled() {
         try {
@@ -50,6 +72,8 @@ class ParentObjectHook {
      * 1. Determine the type of label removed
      * 2a. If project label: delete the associated project card in the project
      * that matches the project label
+     * 
+     * @returns {String} statement of the actions that were done
      */
     async unlabeled() {
         try {

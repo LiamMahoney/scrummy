@@ -19,6 +19,9 @@ async function pullRequest(data) {
             case 'unlabeled':
                 p = new PullRequestHook(data);
                 return await p.unlabeled();
+            case 'opened':
+                p = new PullRequestHook(data);
+                return await p.created();
         }
     } catch (err) {
         throw err;
