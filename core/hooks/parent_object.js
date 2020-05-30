@@ -140,32 +140,6 @@ class ParentObjectHook {
     }
 
     /**
-     * Searches all of the labels in the repository for labels that start with
-     * the type passed in.
-     * 
-     * @param {String} type the type of label to find
-     * @returns {Array} list of all of the labels of the type
-     */
-    async getRepoLabelsOfType(type) {
-        try {
-            let labels = await actions.Label.getAllLabels(this.repository, this.repositoryOwner);
-
-            let matched = [];
-
-            for (label of labels) {
-                if (label.name.indexOf(type) === 0) {
-                    matched.append(label);
-                }
-            }
-
-            return matched;
-
-        } catch (err) {
-            throw err;
-        }
-    }
-
-    /**
      * Determines the type of the label.
      * 
      * @param {Object} label the label just interacted with the parent object
