@@ -44,6 +44,25 @@ async function getMilestoneItems(milestoneNumber, itemCount, repoOwner, repoName
     }
 }
 
+/**
+ * Gets all of the milestones in the repository.
+ * 
+ * @returns {Array} https://developer.github.com/v3/issues/milestones/#list-milestones
+ */
+async function getRepoMilestones(repoOwner, repoName) {
+    try {
+        let options = {
+            path: `/repos/${repoOwner}/${repoName}/milestones`
+        }
+
+        return await request.handleRest(200, await request.get(options));
+
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
-    getMilestoneItems
+    getMilestoneItems,
+    getRepoMilestones
 }
