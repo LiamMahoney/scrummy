@@ -305,7 +305,9 @@ class ParentObjectHook {
                 // finding project with same name as label removed
                 if (projectCard.node.project.name.toLowerCase().trim() === project) {
                     // deleting issue's project card in that project.
-                    return await actions.ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+                    await actions.ProjectCard.deleteProjectCard(projectCard.node.databaseId);
+
+                    return `removed label '${this.hook.label.name}' from #${this.number}`;
                 }
             }
 
