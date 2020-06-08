@@ -80,7 +80,7 @@ class ProjectCardHook {
      * new stage label that matches the column the project card was just moved
      * to. Adding the new stage label will move all of the parent object's
      * other child cards.
-     * TODO: left off here
+     *
      * @returns {String} actions taken
      */
     async moved() {
