@@ -12,7 +12,7 @@ const { project, milestone, projectCard, issues, pullRequest } = require('./hook
  */
 async function determineHook(type, data) {
     try {
-        console.debug(`scrummy recieved hook with type: ${type} and action ${data.action}`);
+        log.info(`scrummy recieved hook with type: ${type} and action ${data.action}`);
         switch (type) {
             case 'project':
                 return await project(data);
