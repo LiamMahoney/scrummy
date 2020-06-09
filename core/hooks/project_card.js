@@ -20,7 +20,8 @@ async function projectCard(data) {
                 return 'not implemented';
             case 'converted':
                 // project card converted into an issue
-                return 'not implemented';
+                p = new ProjectCardHook(data);
+                return await p.converted();
             case 'moved':
                 // issue is moved in project
                 p = new ProjectCardHook(data);
@@ -108,6 +109,31 @@ class ProjectCardHook {
     }
 
     /**
+     * Adds the project label of the project the project cardw as converted in
+     * to the project card's parent object.
+     * 
+     * @returns {String} summary of what actions were taken
+     */
+    async converted() {
+        try {
+            let proms = [];
+            
+            proms.push(request.genericGet(this.hook.project_card.content_url));
+            proms.push(actions.Label.getAllLabels(this.repositoryOwner, this.repository));
+            proms.push(request.genericProjectGet(this.hook.project_card.project_url));
+
+            let [parent, labels, project] = await Promise.all(proms);
+
+            let label = await this.findMatchingLabel(labels, 'project', project.name);
+
+            return await actions.Issue.addLabels(parent.number, [label.name], this.repositoryOwner, this.repository);
+
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
      * Determines if the project is assosciated to a milestone.
      *
      * @param {Object} project response from GET project
@@ -187,9 +213,9 @@ class ProjectCardHook {
     }
 
     /**
-     * Finds the stage label in the list of labels given to the method. Assumes
-     * there is only one type of the label we are searching for in the list
-     * labels.
+     * Finds the label of a type in the list of labels given to the method. 
+     * Assumes there is only one type of the label we are searching for in the 
+     * list labels.
      * 
      * @param {Array} labels list of label objects
      * @param {String} type the type of label to find in the list of labels
