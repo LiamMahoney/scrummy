@@ -17,7 +17,8 @@ async function projectCard(data) {
                 return await p.created();
             case 'deleted':
                 // issue removed from a project or standalone project card deleted
-                return 'not implemented';
+                p = new ProjectCardHook(data);
+                return await p.deleted();
             case 'converted':
                 // project card converted into an issue
                 p = new ProjectCardHook(data);
@@ -71,6 +72,32 @@ class ProjectCardHook {
             proms.push(this.moveToParentStageLabel(parent.labels));
 
             return await Promise.all(proms);
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Determines if the project card is in a milestone project or not. If it
+     * is in a milestone, demilestones the parent object. If it is not, removes
+     * the project label the project card was in from the parent object.
+     * 
+     * @returns {String} actions taken
+     */
+    async deleted() {
+        try {
+            let proms = [];
+            
+            proms.push(request.genericProjectGet(this.hook.project_card.project_url));
+            proms.push(request.genericGet(this.hook.project_card.content_url));
+
+            let [project, parentObject] = await Promise.all(proms);
+
+            if (await this.isMilestoneProject(project)) {
+                return await actions.Issue.removeMilestoneFromIssue(parentObject.number, this.repositoryOwner, this.repository);
+            } else {
+                return await this.removeProjectLabelFromParent(project.name, parentObject.number, parentObject.labels);
+            }
         } catch (err) {
             throw err;
         }
@@ -184,6 +211,33 @@ class ProjectCardHook {
     }
 
     /**
+     * Finds and removes the project label that matches a project name from a 
+     * parent object.
+     * 
+     * @param {String} projectName name of the project to remove the label of 
+     * from the parent
+     * @param {int} parentNumber number associated to the parent object
+     * @param {Array} parentLabels list of label objects on the parent object
+     */
+    async removeProjectLabelFromParent(projectName, parentNumber, parentLabels) {
+        try {
+            let projectLabels = await this.findLabelsOfType(parentLabels, 'project');
+
+            for (let projectLabel of projectLabels) {
+                // label name minus the 'type' of the label
+                let labelName = projectLabel.name.substr(projectLabel.name.indexOf(':') + 1).trim(); 
+                if (labelName.toLowerCase() === projectName.toLowerCase().trim()) {
+                    return await actions.Issue.removeLabel(parentNumber, projectLabel.name, this.repositoryOwner, this.repository);
+                }
+            }
+
+            return `No project label matching '${projectName}' found on #${parentNumber}`;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
      * Moves the project card to the parent object's stage label, if there is
      * one.
      * 
@@ -237,6 +291,34 @@ class ProjectCardHook {
             }
 
             throw Error(`couldn't find stage label`)
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Finds all the labels of a certain type in a given list of label objects.
+     * 
+     * 
+     * @param {Array} labels list of label objects
+     * @param {String} type tye type of the label to find
+     * @throws {Error} when no labels of the type are found
+     */
+    async findLabelsOfType(labels, type) {
+        try {
+            let labelsOfType = [];
+
+            for (let label of labels) {
+                if (label.name.substr(0, label.name.indexOf(':')).toLowerCase().trim() === type.toLowerCase().trim()) {
+                    labelsOfType.push(label);
+                }
+            }
+
+            if (labelsOfType.length === 0) {
+                throw Error(`found zero labels with type ${type}`);
+            }
+
+            return labels;
         } catch (err) {
             throw err;
         }
