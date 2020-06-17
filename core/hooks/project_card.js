@@ -55,23 +55,26 @@ class ProjectCardHook {
      */
     async created() {
         try {
-            let proms = [];
+            // project cards with parent objects have values for this field
+            if (this.hook.project_card.content_url) {
+                let proms = [];
 
-            proms.push(request.genericProjectGet(this.hook.project_card.project_url));
-            proms.push(request.genericGet(this.hook.project_card.content_url));
+                proms.push(request.genericProjectGet(this.hook.project_card.project_url));
+                proms.push(request.genericGet(this.hook.project_card.content_url));
 
-            let [project, parent] = await Promise.all(proms);
+                let [project, parent] = await Promise.all(proms);
 
-            proms = [];
+                proms = [];
 
-            if (!await this.isMilestoneProject(project)) {
-                // add project label
-                proms.push(this.addProjectLabelToParent(project.name, parent.number));
+                if (!await this.isMilestoneProject(project)) {
+                    // add project label
+                    proms.push(this.addProjectLabelToParent(project.name, parent.number));
+                }
+
+                proms.push(this.moveToParentStageLabel(parent.labels));
+
+                return await Promise.all(proms);
             }
-
-            proms.push(this.moveToParentStageLabel(parent.labels));
-
-            return await Promise.all(proms);
         } catch (err) {
             throw err;
         }
