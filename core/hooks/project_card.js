@@ -165,7 +165,7 @@ class ProjectCardHook {
 
     /**
      * Determines if the project is assosciated to a milestone.
-     *
+     * TODO: this needs to be pulled out into a helper
      * @param {Object} project response from GET project
      * @returns {Boolean} true if the project is associated to a milestone, false if it is not
      */
@@ -331,7 +331,7 @@ class ProjectCardHook {
      * Finds the label that matches the given type and name. If I am looking
      * for the label 'stage: To Do', the type would be 'stage' and the name
      * would be 'To Do'.
-     * 
+     * TODO: move this out to a 'helper'
      * @param {Array} labels list of labels to find a label from 
      * @param {String} type the type of the label being searched for
      * @param {String} name the second part of the label, e.g. if the label is

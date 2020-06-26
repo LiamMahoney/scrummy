@@ -53,6 +53,28 @@ async function createLabel(repoOwner, repoName, labelName) {
 }
 
 /**
+ * Deletes a label from a repository.
+ * 
+ * @param {String} labelName the label to delete
+ * @param {String} repoOwner the login of the owner of the repo
+ * @param {String} repoName the name of the repo the label is in
+ * @returns {String} states what label was deleted
+ */
+async function deleteLabel(labelName, repoOwner, repoName) {
+    try {
+        let opts = {
+            path: `/repos/${repoOwner}/${repoName}/labels/${labelName}`
+        }
+
+        let resp = await request.handleRest(204, await request.del(opts));
+
+        return `deleted label '${labelName}' from repository '${repoName}'`;
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
  * Generates a random color.
  * 
  * @returns {string} hex descibing a color
@@ -63,5 +85,6 @@ function randomColor() {
 
 module.exports = {
     getAllLabels,
-    createLabel
+    createLabel,
+    deleteLabel
 }

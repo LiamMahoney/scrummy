@@ -62,7 +62,52 @@ async function getRepoMilestones(repoOwner, repoName) {
     }
 }
 
+/**
+ * Closes a milestone.
+ * 
+ * @param {int} number milestone number 
+ * @param {String} repoOwner login of the owner of the repo the milestone is in
+ * @param {String} repoName name of the repo the milestone is in
+ */
+async function close(number, repoOwner, repoName) {
+    try {
+        let payload = {
+            state: "closed"
+        }
+
+        return await update(number, payload, repoOwner, repoName);
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Updates a github milestone.
+ * 
+ * @param {int} number milestone number
+ * @param {Object} payload = {
+ *  title: "string",
+ *  state: "one of 'open' or 'closed'",
+ *  description: "string",
+ *  due_on: "YYYY-MM-DDTHH:MM:SSZ"
+ * } 
+ * @param {String} repoOwner login of the repository owner
+ * @param {String} repoName name of the repository the milestone is in
+ */
+async function update(number, payload, repoOwner, repoName) {
+    try {
+        let options = {
+            path: `/repos/${repoOwner}/${repoName}/milestones/${number}`
+        }
+
+        return await request.handleRest(200, await request.patch(options, payload))
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     getMilestoneItems,
-    getRepoMilestones
+    getRepoMilestones,
+    close
 }
