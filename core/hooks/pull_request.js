@@ -1,4 +1,3 @@
-const { PullRequest } = require('../states');
 const { ParentObjectHook } = require('./parent_object');
 
 /**

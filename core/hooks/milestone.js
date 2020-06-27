@@ -1,5 +1,3 @@
-const { Milestone } = require('../states');
-
 /**
  *
  * @param {Object} data mlestone webhook payload

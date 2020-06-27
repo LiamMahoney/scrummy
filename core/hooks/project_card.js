@@ -1,4 +1,3 @@
-const { Issue } = require('../states');
 const actions = require('../actions');
 const request = require('../../utils/request');
 

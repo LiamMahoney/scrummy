@@ -1,4 +1,3 @@
-const { Project } = require('../states');
 const actions = require('../actions');
 
 /**

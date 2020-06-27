@@ -1,4 +1,3 @@
-const issue = require('../states/issue');
 const {ParentObjectHook} = require('./parent_object');
 const actions = require('../actions');
 
