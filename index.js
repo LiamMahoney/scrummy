@@ -10,7 +10,7 @@ app.use(express.json());
 app.post("/", verifyPostData, (req, res) => {
 
     scrummy(req.headers['x-github-event'], req.body);
-    // don't care if scrummy fails or not, the webhook won't alert
+    // don't care if scrummy fails or not here
     res.status(200).send();
 });
 
